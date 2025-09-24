@@ -1,0 +1,168 @@
+Pasted--Updated-Website-Build-Plan-for-Reyan-Luxe-Brand-Summary-Reyan-Luxe-is-a-prem-1758552317898_1758552317899.txt
+---
+
+## ✅ Updated Website Build Plan for Reyan Luxe
+
+---
+
+### 🖋 Brand Summary
+
+Reyan Luxe is a premium bracelet jewelry brand, offering **handcrafted beaded and charm bracelets with a luxury lifestyle aesthetic. The brand targets **style-conscious individuals—men and women—who appreciate **artisanal craftsmanship, **elegance, and **minimalist design.
+
+---
+
+## 🎨 1. DESIGN SYSTEM
+
+### 🧱 Color Palette:
+
+* Primary (Rose Gold): #B76E79 – used for accents, buttons, borders, and glow effects.
+* Secondary (Matte Black): #0D0D0D – dominant background, cards, and headers.
+* Tertiary (Cream/White): #FAF9F6 – contrast text or sections for breathing space.
+* Hover Glow (Rose Quartz variant): #D6A5AC (lighter tone for animation glow effects)
+
+### 🌐 Typography:
+
+* Headings: Playfair Display – modern serif, elegant & high fashion.
+* Body Text & UI: Inter – clean, geometric sans-serif for high readability.
+
+### 🔠 Logo Composition (Brand Name):
+
+Reyan Luxe → Display as:
+
+* "Re" in Matte Black
+* "yan" in Rose Gold
+* Use Playfair Display with a subtle kerning.
+* Use slight tracking for luxury feel.
+* Tagline: "Refined Adornment. Uncompromising Elegance."
+
+---
+
+## 🧩 2. WEBSITE STRUCTURE (4-Frame Layout)
+
+---
+
+### 🔹 \[1] HOME Frame (Hero Section)
+
+Full-screen immersive hero, featuring:
+
+* Animated brand logo (Reyan Luxe split-color)
+* Tagline beneath logo:
+  “Refined Adornment. Uncompromising Elegance.”
+* CTA: Shop the Collection – rose-gold outline button with glow on hover
+* Background: high-res video loop (slow pan over hands wearing bracelets in soft light) OR parallax-stacked imagery of matte black surface + beads.
+
+Hero Animations:
+
+* Logo fade-in + slide from top
+* Tagline fades in with slight delay
+* CTA Button scales and glows on hover using Framer Motion
+* Scroll indicator arrow animates subtly (floating motion)
+
+---
+
+### 🔹 \[2] COLLECTION Frame
+
+Bracelet Grid Display:
+
+* Masonry-style or clean 3x2 grid (auto-collapses for mobile)
+* Each bracelet card:
+
+  * Soft shadow
+  * Slight scale on hover
+  * Charm rotation on hover using Framer Motion rotate
+  * Tooltip: Show bracelet name + price elegantly on hover
+* Filter options (top bar): Beaded, Charms, Limited Edition, Minimal
+* Background: Matte Black with Rose-Gold hover lines appearing on edges
+
+Card Animation Details:
+
+* Initial fade-in on scroll
+* On hover: scale up slightly, glow outline (rose gold), charm spins (360° slowly)
+
+---
+
+### 🔹 \[3] ABOUT US Frame
+
+Elegant storytelling section with parallax scrolling:
+
+* Sticky timeline on desktop, vertical scroll on mobile.
+* Sections:
+
+  1. Origins – “Born from a vision of elegance and simplicity”
+  2. Craftsmanship – “Each bracelet is handcrafted with precision”
+  3. Philosophy – “Luxury is in the details—quality, not quantity”
+
+Visuals:
+
+* Close-up shots of handcrafting process (images/video)
+* Parallax background of bead textures
+
+Animations:
+
+* Fade-ins with delay
+* Sections slide subtly as user scrolls (Framer Motion + scroll-triggered transitions)
+
+---
+
+### 🔹 \[4] CONTACT Frame
+
+Form + Social CTA section:
+
+* Left: Stylish contact form with glowing rose-gold borders
+
+  * Fields: Name, Email, Message
+  * Submit button with glow + icon transition
+* Right: Social icons with hover animation
+
+  * Instagram, Pinterest, TikTok, WhatsApp
+  * On hover: Icons glow rose-gold and pulse gently
+* Optional: Add newsletter subscription
+
+Background: Half-split – left (Matte Black), right (Rose Gold gradient blur)
+
+---
+
+## 🧩 COMPONENTS & MICROINTERACTIONS
+
+---
+
+### 🔘 Sticky Navbar:
+
+* Matte Black background
+* Semi-transparent blur on scroll
+* Logo on left (animated shrink on scroll)
+* Links (Home, Collection, About, Contact) animate with underline on hover
+* Smooth scroll to anchors
+
+### 🛒 CTA Buttons:
+
+* Rose-gold glowing outline
+* On hover: soft scale, subtle shimmer
+* Gesture-based interaction using Framer Motion (click ripple)
+
+### 💠 Bracelet Cards:
+
+* 3D hover depth (shadow + lift)
+* Rotate charms on hover
+* Tag popups with product name, materials, and price
+
+### 📱 Mobile-First Responsiveness:
+
+* Hamburger menu with animated drawer (rose gold background)
+* Grid collapses into 1-column scroll
+* Buttons stay tap-friendly
+* Touch gestures for swipe transitions between sections
+
+---
+
+## 🛠 TECH STACK OVERVIEW
+
+| Feature              | Tech/Library                                              |
+| -------------------- | --------------------------------------------------------- |
+| UI Framework         | React.js (with Vite or Next.js preferred for routing)     |
+| Styling              | TailwindCSS + Custom utilities                            |
+| Component System     | shadcn/ui (Buttons, Inputs, Cards, Dialogs)               |
+| Animations           | Framer Motion                                             |
+| Scroll-based Effects | framer-motion + react-intersection-observer           |
+| Form Handling        | React Hook Form + email handler (Formspree or custom API) |
+| Icons                | lucide-react or reac...
