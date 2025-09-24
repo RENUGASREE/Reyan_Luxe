@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(28, 12%, 98%);
+  --foreground: hsl(0, 0%, 5%);
+  --card: hsl(0, 0%, 5%);
+  --card-foreground: hsl(28, 12%, 98%);
+  --primary: hsl(347, 24%, 59%);
+  --primary-foreground: hsl(28, 12%, 98%);
+  --secondary: hsl(0, 0%, 5%);
+  --secondary-foreground: hsl(28, 12%, 98%);
+  --muted: hsl(347, 24%, 75%);
+  --muted-foreground: hsl(28, 12%, 30%);
+  --accent: hsl(347, 24%, 75%);
+  --accent-foreground: hsl(0, 0%, 5%);
+  --border: hsl(347, 24%, 59%);
+  --input: hsl(0, 0%, 15%);
+  --ring: hsl(347, 24%, 59%);
+  --destructive: hsl(356, 90%, 54%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --popover: hsl(28, 12%, 98%);
+  --popover-foreground: hsl(0, 0%, 5%);
+  --radius: 0.75rem;
+  
+  /* Custom Reyan Luxe Brand Colors */
+  --rose-gold: hsl(347, 24%, 59%);
+  --matte-black: hsl(0, 0%, 5%);
+  --cream: hsl(28, 12%, 98%);
+  --rose-glow: hsl(347, 24%, 75%);
+  
+  /* Typography */
+  --font-playfair: 'Playfair Display', serif;
+  --font-inter: 'Inter', sans-serif;
+}
+
+.dark {
+  --background: hsl(0, 0%, 5%);
+  --foreground: hsl(28, 12%, 98%);
+  --card: hsl(0, 0%, 8%);
+  --card-foreground: hsl(28, 12%, 98%);
+  --primary: hsl(347, 24%, 59%);
+  --primary-foreground: hsl(28, 12%, 98%);
+  --secondary: hsl(28, 12%, 98%);
+  --secondary-foreground: hsl(0, 0%, 5%);
+  --muted: hsl(347, 24%, 35%);
+  --muted-foreground: hsl(28, 12%, 70%);
+  --accent: hsl(347, 24%, 35%);
+  --accent-foreground: hsl(28, 12%, 98%);
+  --border: hsl(347, 24%, 35%);
+  --input: hsl(0, 0%, 15%);
+  --ring: hsl(347, 24%, 59%);
+  --popover: hsl(0, 0%, 5%);
+  --popover-foreground: hsl(28, 12%, 98%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-inter antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .font-playfair {
+    font-family: var(--font-playfair);
+  }
+  
+  .font-inter {
+    font-family: var(--font-inter);
+  }
+  
+  .hero-bg {
+    background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+  }
+  
+  .glow-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .glow-hover:hover {
+    box-shadow: 0 0 20px hsl(347, 24%, 59%, 0.4), 0 0 40px hsl(347, 24%, 59%, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  .card-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px hsl(347, 24%, 59%, 0.3);
+  }
+  
+  .navbar-blur {
+    backdrop-filter: blur(10px);
+    background-color: hsl(0, 0%, 5%, 0.9);
+  }
+  
+  .pulse-glow {
+    animation: pulseGlow 2s infinite;
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 5px hsl(347, 24%, 59%, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 20px hsl(347, 24%, 59%, 0.8), 0 0 30px hsl(347, 24%, 59%, 0.4);
+    }
+  }
+  
+  .rotate-charm {
+    transition: transform 0.6s ease;
+  }
+  
+  .card-hover:hover .rotate-charm {
+    transform: rotate(360deg);
+  }
+  
+  .parallax-bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  @media (max-width: 768px) {
+    .parallax-bg {
+      background-attachment: scroll;
+    }
+  }
+}
