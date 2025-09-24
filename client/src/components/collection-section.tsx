@@ -118,7 +118,7 @@ export default function CollectionSection() {
               key={filter}
               onClick={() => setActiveFilter(filter)}
               variant={activeFilter === filter ? "default" : "outline"}
-              className={`px-6 py-2 border border-primary transition-all ${
+              className={`px-6 py-2 border border-primary transition-all glow-hover ${
                 activeFilter === filter
                   ? "bg-primary text-white"
                   : "text-primary hover:bg-primary hover:text-white"

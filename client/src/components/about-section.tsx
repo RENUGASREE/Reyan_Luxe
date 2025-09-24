@@ -140,7 +140,7 @@ export default function AboutSection() {
                     data-testid={`philosophy-item-${item.title.toLowerCase()}`}
                   >
                     <motion.div
-                      className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4"
+                      className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 glow-hover"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >
