@@ -10,8 +10,8 @@ export default function Footer() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <div className="text-2xl font-playfair font-bold text-background mb-4" data-testid="footer-logo">
-          <span className="text-background">Re</span>
+        <div className="text-2xl font-playfair font-bold text-foreground mb-4" data-testid="footer-logo">
+          <span className="text-foreground">Re</span>
           <span className="text-primary">yan</span>{" "}
           <span className="text-primary">Luxe</span>
         </div>

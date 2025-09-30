@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Gem, Heart, Star, Leaf, Moon, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ResponsiveContainer } from "@/components/responsive-utils";
 
 interface BraceletCard {
   id: number;
@@ -88,7 +89,7 @@ export default function CollectionSection() {
 
   return (
     <section id="collection" className="py-20 bg-secondary">
-      <div className="max-w-7xl mx-auto px-6">
+      <ResponsiveContainer className="px-6">
         {/* Section Header */}
         <motion.div
           className="text-center mb-16"
@@ -97,7 +98,7 @@ export default function CollectionSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-background mb-4" data-testid="collection-title">
+          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-foreground mb-4" data-testid="collection-title">
             Our Signature Pieces
           </h2>
           <p className="text-background/70 text-lg max-w-2xl mx-auto">
@@ -181,7 +182,7 @@ export default function CollectionSection() {
             </motion.div>
           ))}
         </motion.div>
-      </div>
+      </ResponsiveContainer>
     </section>
   );
 }

@@ -100,7 +100,7 @@ export default function ContactSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-background mb-4" data-testid="contact-title">
+          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-foreground mb-4" data-testid="contact-title">
             Let's Connect
           </h2>
           <p className="text-background/70 text-lg">
@@ -117,7 +117,7 @@ export default function ContactSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h3 className="text-2xl font-playfair font-bold text-background mb-6" data-testid="contact-form-title">
+            <h3 className="text-2xl font-playfair font-bold text-foreground mb-6" data-testid="contact-form-title">
               Send us a Message
             </h3>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" data-testid="contact-form">
@@ -192,7 +192,7 @@ export default function ContactSection() {
             transition={{ duration: 0.8 }}
           >
             <div>
-              <h3 className="text-2xl font-playfair font-bold text-background mb-6" data-testid="social-title">
+              <h3 className="text-2xl font-playfair font-bold text-foreground mb-6" data-testid="social-title">
                 Follow Our Journey
               </h3>
               <p className="text-background/70 text-lg mb-8">
@@ -201,7 +201,7 @@ export default function ContactSection() {
               
               {/* Social Icons */}
               <div className="flex space-x-6">
-                {socialLinks.map((social, index) => (
+                {socialLinks.map((social) => (
                   <motion.a
                     key={social.label}
                     href={social.href}
@@ -222,7 +222,7 @@ export default function ContactSection() {
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <h4 className="text-xl font-playfair font-bold text-background mb-4" data-testid="newsletter-title">
+              <h4 className="text-xl font-playfair font-bold text-foreground mb-4" data-testid="newsletter-title">
                 Join Our Newsletter
               </h4>
               <p className="text-background/70 mb-4">

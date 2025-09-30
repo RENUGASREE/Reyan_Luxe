@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
 import { Gem, Hand, Infinity } from "lucide-react";
+
+import { motion } from "framer-motion";
 
 export default function AboutSection() {
   const philosophyItems = [
@@ -34,12 +35,10 @@ export default function AboutSection() {
         {/* Section Header */}
         <motion.div
           className="text-center mb-20"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-secondary mb-4" data-testid="about-title">
+          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-foreground mb-4" data-testid="about-title">
             The Story Behind Reyan Luxe
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto"></div>
@@ -56,13 +55,13 @@ export default function AboutSection() {
             transition={{ duration: 0.8 }}
           >
             <div className="lg:w-1/2">
-              <h3 className="text-3xl font-playfair font-bold text-secondary mb-6" data-testid="origins-title">
+              <h3 className="text-3xl font-playfair font-bold text-foreground mb-6" data-testid="origins-title">
                 Our Origins
               </h3>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              <p className="text-lg text-foreground leading-relaxed mb-6">
                 Born from a vision of elegance and simplicity, Reyan Luxe emerged from the desire to create jewelry that transcends trends and speaks to the soul. Our journey began with a single belief: that true luxury lies not in excess, but in the perfect harmony of design and craftsmanship.
               </p>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-foreground leading-relaxed">
                 What started as a passionate pursuit of creating the perfect bracelet has evolved into a brand synonymous with refined taste and uncompromising quality.
               </p>
             </div>
@@ -89,13 +88,13 @@ export default function AboutSection() {
             transition={{ duration: 0.8 }}
           >
             <div className="lg:w-1/2">
-              <h3 className="text-3xl font-playfair font-bold text-secondary mb-6" data-testid="craftsmanship-title">
+              <h3 className="text-3xl font-playfair font-bold text-foreground mb-6" data-testid="craftsmanship-title">
                 Handcrafted Excellence
               </h3>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              <p className="text-lg text-foreground leading-relaxed mb-6">
                 Each bracelet is handcrafted with precision by master artisans who bring decades of experience to every piece. We believe that the human touch cannot be replicated by machines—it's what gives our jewelry its soul and character.
               </p>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-foreground leading-relaxed">
                 From selecting the finest materials to the final polish, every step of our process is carefully monitored to ensure that each piece meets our exacting standards of excellence.
               </p>
             </div>
@@ -121,11 +120,11 @@ export default function AboutSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h3 className="text-3xl font-playfair font-bold text-secondary mb-6" data-testid="philosophy-title">
+            <h3 className="text-3xl font-playfair font-bold text-foreground mb-6" data-testid="philosophy-title">
               Philosophy of Luxury
             </h3>
             <div className="max-w-4xl mx-auto">
-              <p className="text-xl text-muted-foreground leading-relaxed mb-8">
+              <p className="text-xl text-foreground leading-relaxed mb-8">
                 We believe that true luxury is in the details—quality, not quantity. It's about creating pieces that become part of your story, that age gracefully with you, and that carry meaning beyond their material value.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
@@ -146,7 +145,7 @@ export default function AboutSection() {
                     >
                       <item.icon className="h-8 w-8 text-white" />
                     </motion.div>
-                    <h4 className="text-xl font-playfair font-bold text-secondary mb-2">
+                    <h4 className="text-xl font-playfair font-bold text-foreground mb-2">
                       {item.title}
                     </h4>
                     <p className="text-muted-foreground">
