@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+ <html lang="en">
+ <head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Welcome to Reyan Luxe</title>
+ <style>
+   body {
+     font-family: 'Playfair Display', serif;
+     background-color: #000000;
+     color: #f8f8f8;
+     margin: 0;
+     padding: 0;
+   }
+   .container {
+     max-width: 700px;
+     margin: auto;
+     background-color: #0b0b0b;
+     border: 1px solid #222;
+     box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+   }
+   header {
+     text-align: center;
+     padding: 40px 20px 10px 20px;
+   }
+   header h1 {
+     color: #d4af37;
+     font-size: 36px;
+     letter-spacing: 2px;
+     margin-bottom: 5px;
+   }
+   .hero {
+     text-align: center;
+     padding: 20px 30px 10px;
+   }
+   .hero h2 {
+     font-size: 28px;
+     color: #ffffff;
+     margin-bottom: 10px;
+   }
+   .hero p {
+     color: #ccc;
+     font-size: 16px;
+     margin-bottom: 25px;
+   }
+   .products {
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: center;
+     gap: 20px;
+     padding: 20px;
+   }
+   .product {
+     width: 200px;
+     text-align: center;
+   }
+   .product img {
+     width: 100%;
+     border-radius: 10px;
+     box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+   }
+   .product h3 {
+     color: #d4af37;
+     font-size: 16px;
+     margin: 10px 0 5px;
+   }
+   .cta {
+     display: inline-block;
+     background-color: #d4af37;
+     color: #000;
+     text-decoration: none;
+     font-weight: bold;
+     padding: 10px 25px;
+     border-radius: 5px;
+     margin-top: 10px;
+     transition: background-color 0.3s ease;
+   }
+   .cta:hover {
+     background-color: #b08b2b;
+   }
+   footer {
+     text-align: center;
+     padding: 30px 10px;
+     color: #ccc;
+     font-size: 14px;
+   }
+   footer a {
+     color: #d4af37;
+     text-decoration: none;
+     margin: 0 8px;
+   }
+   @media (max-width: 600px) {
+     .products {
+       flex-direction: column;
+       align-items: center;
+     }
+   }
+ </style>
+ </head>
+
+ <body>
+   <div class="container">
+     <header>
+       <h1>ReyanLuxe</h1>
+     </header>
+
+     <section class="hero">
+       <h2>Welcome to Reyan Luxe</h2>
+       <p>Step into the world of timeless elegance — where every bracelet, chain, and ring is handcrafted to radiate confidence and grace.</p>
+       <a href="https://reyanluxe.com/shop" class="cta">Shop Now</a>
+     </section>
+
+     <section class="products">
+       <div class="product">
+         <img src="https://m.media-amazon.com/images/I/41m4YJojGqL._SY500_.jpg" alt="Aquamarine and Peach Butterfly Bracelet">
+         <h3>Aquamarine & Peach Bracelet</h3>
+         <a href="https://reyanluxe.com/products/aquamarine-bracelet" class="cta">View Product</a>
+       </div>
+
+       <div class="product">
+         <img src="https://image3.nihaojewelry.com/fit-in/800x800/filters:format(webp)/product/2022/7/19/1549229361239035904/PVD-Coated-18K-Gold-Real-Gold-Plated-Butterfly-Stainless-Steel-Fairy-Style-Waterproof-Non-Tarnish-304-Stainless-Steel-Necklace.jpg" alt="Gold Butterfly Necklace">
+         <h3>Gold Butterfly Necklace</h3>
+         <a href="https://reyanluxe.com/products/gold-butterfly-necklace" class="cta">View Product</a>
+       </div>
+
+       <div class="product">
+         <img src="https://image3.nihaojewelry.com/fit-in/800x800/filters:format(webp)/product/2025/5/27/1927312689827287040/Copper-Inlaid-Zircon-Butterfly-Ring-Female-Inlaid-Horse-Eye-Zircon-Fashion-Multi-layer-Hollow-Design-High-grade-Ring.jpg" alt="Purple Butterfly Ring">
+         <h3>Amethyst Butterfly Ring</h3>
+         <a href="https://reyanluxe.com/products/amethyst-butterfly-ring" class="cta">View Product</a>
+       </div>
+     </section>
+
+     <footer>
+       <p>Follow us for more sparkle ✨</p>
+       <a href="mailto:reyanluxe@gmail.com">Email</a> |
+       <a href="https://www.instagram.com/reyan.luxe">Instagram</a> |
+       <a href="https://www.facebook.com/profile.php?id=61582943545530">Facebook</a> |
+       <a href="https://wa.me/919025322098">WhatsApp</a> |
+       <a href="http://127.0.0.1:8000/api/newsletter/download-pdf/">Download Newsletter (PDF)</a>
+       <p style="margin-top:15px;">© 2025 Reyan Luxe. All Rights Reserved.</p>
+     </footer>
+   </div>
+ </body>
+ </html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Reyan Luxe</title>
+    <style>
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .content h1 {
+            color: #FF5733; /* Changed to a new color */
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff; /* Changed to blue */
+            color: #ffffff !important; /* Changed to white */
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        .social-icons img {
+            width: 24px;
+            height: 24px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reyan Luxe</h1>
+        </div>
+        <div class="content">
+            <h1>Welcome to the World of Exquisite Craftsmanship,</h1>
+            <h2>{{ email }}!</h2>
+            <p>Thank you for subscribing to the Reyan Luxe newsletter. We are thrilled to have you join our community of discerning individuals who appreciate the finest in handcrafted jewelry.</p>
+            <p>Prepare to be captivated by exclusive insights into our latest collections, behind-the-scenes glimpses of our artisanal process, and special offers reserved just for our cherished subscribers.</p>
+            <p>At Reyan Luxe, every piece tells a story of elegance, passion, and unparalleled quality. We invite you to explore our world of timeless beauty.</p>
+            <a href="http://localhost:5173/" class="button">Discover Our Collection</a>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Reyan Luxe. All rights reserved.</p>
+            <p>Follow us on social media:</p>
+            <div class="social-icons">
+                <a href="https://www.instagram.com/reyan.luxe"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width: 24px; height: 24px; margin: 0 5px;"></a>
+                <a href="https://www.facebook.com/share/p/1BEmzJk7GF/"><img src="https://i.imgur.com/0000000.png" alt="Facebook" style="width: 24px; height: 24px; margin: 0 5px;"></a>
+            </div>
+            <p>You received this email because you subscribed to Reyan Luxe. If you no longer wish to receive emails from us, you can <a href="http://localhost:8000/api/newsletter/unsubscribe/?email={{ email }}" style="color: #a32a2a;">unsubscribe here</a>.</p>
+        </div>
+    </div>
+</body>
+</html>
