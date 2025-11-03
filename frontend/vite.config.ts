@@ -4,6 +4,7 @@ import { defineConfig } from "vite"
 import svgr from "vite-plugin-svgr"
  
 export default defineConfig({
+  base: "/Reyan_Luxe/",
   plugins: [react(), svgr()],
   resolve: {
     alias: {

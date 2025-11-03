@@ -37,6 +37,7 @@ export default function Navbar() {
     { label: "Contact", path: "/contact" },
     { label: "Cart", path: "/cart" },
     { label: "Admin", path: "/admin" },
+    { label: "Live Site", href: "https://RENUGASREE.github.io/Reyan_Luxe/" },
   ];
 
   const authNavItems = user
@@ -87,6 +88,17 @@ export default function Navbar() {
                   {item.label}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                 </Button>
+              ) : item.href ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-cream hover:text-primary transition-colors relative group"
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                </a>
               ) : (
                 <Link
                   key={item.path}
@@ -153,8 +165,8 @@ export default function Navbar() {
                   </Button>
                 ) : (
                   <motion.a
-                    key={item.path}
-                    href={item.path}
+                    key={item.label}
+                    href={(item as any).href ?? item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-white text-2xl font-playfair"
                     initial={{ opacity: 0, y: 20 }}
