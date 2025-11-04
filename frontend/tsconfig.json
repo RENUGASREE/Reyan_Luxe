@@ -24,8 +24,7 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@shared/*": ["../../ReyanLuxe/shared/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
