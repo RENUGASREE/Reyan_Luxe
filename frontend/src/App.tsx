@@ -41,6 +41,7 @@ function App() {
           <Router>
             {loading && <LoadingScreen onFinishLoading={handleFinishLoading} />}
             {!loading && <Navbar />}
+            <h1>Deployment Test</h1>
             <FloatingParticles />
             <PageTransition>
               <Routes>
