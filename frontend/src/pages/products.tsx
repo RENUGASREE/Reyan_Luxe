@@ -31,32 +31,32 @@ export default function Products() {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [categories, setCategories] = useState([]);
+  // const [categories, setCategories] = useState([]);
   const [braceletCategories, setBraceletCategories] = useState([]);
   const [chainCategories, setChainCategories] = useState([]);
 
-  const braceletSubcategories = [
-    { value: "all_bracelets", label: "All Bracelets" },
-    { value: "womens_bracelets", label: "Womens Bracelets" },
-    { value: "mens_bracelets", label: "Mens Bracelets" },
-    { value: "armband_bracelets", label: "Armband Bracelets" },
-    { value: "gold_bracelets", label: "Gold Bracelets" },
-    { value: "charm_bracelets", label: "Charm Bracelets" },
-    { value: "couple_bracelets", label: "Couple Bracelets" },
-    { value: "handmade_bracelets", label: "Handmade Bracelets" },
-    { value: "gemstone_bracelets", label: "Gemstone Bracelets" },
-    { value: "crystal_bracelets", label: "Crystal Bracelets" },
-    { value: "fashion_bracelets", label: "Fashion Bracelets" },
-  ];
+  // const braceletSubcategories = [
+  //   { value: "all_bracelets", label: "All Bracelets" },
+  //   { value: "womens_bracelets", label: "Womens Bracelets" },
+  //   { value: "mens_bracelets", label: "Mens Bracelets" },
+  //   { value: "armband_bracelets", label: "Armband Bracelets" },
+  //   { value: "gold_bracelets", label: "Gold Bracelets" },
+  //   { value: "charm_bracelets", label: "Charm Bracelets" },
+  //   { value: "couple_bracelets", label: "Couple Bracelets" },
+  //   { value: "handmade_bracelets", label: "Handmade Bracelets" },
+  //   { value: "gemstone_bracelets", label: "Gemstone Bracelets" },
+  //   { value: "crystal_bracelets", label: "Crystal Bracelets" },
+  //   { value: "fashion_bracelets", label: "Fashion Bracelets" },
+  // ];
 
-  const chainSubcategories = [
-    { value: "all_chains", label: "All Chains" },
-    { value: "cuban_chain", label: "Cuban Chain" },
-    { value: "rope_chain", label: "Rope Chain" },
-    { value: "figaro_chain", label: "Figaro Chain" },
-    { value: "gold_chain", label: "Gold Chain" },
-    { value: "silver_chain", label: "Silver Chain" },
-  ];
+  // const chainSubcategories = [
+  //   { value: "all_chains", label: "All Chains" },
+  //   { value: "cuban_chain", label: "Cuban Chain" },
+  //   { value: "rope_chain", label: "Rope Chain" },
+  //   { value: "figaro_chain", label: "Figaro Chain" },
+  //   { value: "gold_chain", label: "Gold Chain" },
+  //   { value: "silver_chain", label: "Silver Chain" },
+  // ];
 
   const signatureSubcategories = [
     { value: "signature_all", label: "All" },
@@ -94,7 +94,7 @@ export default function Products() {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/categories/`);
         const cats = res.data || [];
-        setCategories(cats);
+        // setCategories(cats);
         const braceletCats = cats
           .filter((c) => c.group === "bracelet" && c.show_in_menu)
           .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
@@ -211,7 +211,7 @@ export default function Products() {
               <DropdownMenuItem onClick={() => { setFilterCategory("all"); setFilterLabel("All Categories"); }}>All Categories</DropdownMenuItem>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>Our Signature Pieces</DropdownMenuSubTrigger>
-                <DropdownMenuSubContent side="right" avoidCollisions={false} sideOffset={10}>
+                <DropdownMenuSubContent avoidCollisions={false} sideOffset={10}>
                   {signatureSubcategories.map((item) => (
                     <DropdownMenuItem key={item.value} onClick={() => { setFilterCategory(item.value === "signature_all" ? "signature" : item.value); setFilterLabel(item.label); }}>
                       {item.label}
@@ -221,7 +221,7 @@ export default function Products() {
               </DropdownMenuSub>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>Bracelet</DropdownMenuSubTrigger>
-                <DropdownMenuSubContent side="right" avoidCollisions={false} sideOffset={10}>
+                <DropdownMenuSubContent avoidCollisions={false} sideOffset={10}>
                   <DropdownMenuItem onClick={() => { setFilterCategory("bracelet"); setFilterLabel("Bracelet - All"); }}>
                     All
                   </DropdownMenuItem>
@@ -234,7 +234,7 @@ export default function Products() {
               </DropdownMenuSub>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>Chain</DropdownMenuSubTrigger>
-                <DropdownMenuSubContent side="right" avoidCollisions={false} sideOffset={10}>
+                <DropdownMenuSubContent avoidCollisions={false} sideOffset={10}>
                   <DropdownMenuItem onClick={() => { setFilterCategory("chain"); setFilterLabel("Chain - All"); }}>
                     All
                   </DropdownMenuItem>
@@ -284,13 +284,13 @@ export default function Products() {
   );
 }
 
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  imageUrl: string; // Updated field for image URL
-  is_signature_piece: boolean;
-  category: string;
-  signature_category: string;
-}
+// interface Product {
+//   id: number;
+//   name: string;
+//   description: string;
+//   price: string;
+//   imageUrl: string; // Updated field for image URL
+//   is_signature_piece: boolean;
+//   category: string;
+//   signature_category: string;
+// }
