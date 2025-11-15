@@ -14,11 +14,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Footer from "@/components/footer";
+import { SEO } from "@/components/SEO";
+import { useNavigate } from "react-router-dom";
 
-const formatCategoryName = (slug, categoryName) => {
+const formatCategoryName = (slugOrCategory, categoryName) => {
   if (categoryName) return categoryName;
-  if (!slug) return "";
-  return String(slug)
+  if (!slugOrCategory) return "";
+  const normalized = String(slugOrCategory);
+  if (normalized.toLowerCase() === "necklace") return "Chain";
+  return normalized
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
@@ -34,6 +38,7 @@ export default function Products() {
   // const [categories, setCategories] = useState([]);
   const [braceletCategories, setBraceletCategories] = useState([]);
   const [chainCategories, setChainCategories] = useState([]);
+  const navigate = useNavigate();
 
   // const braceletSubcategories = [
   //   { value: "all_bracelets", label: "All Bracelets" },
@@ -68,17 +73,30 @@ export default function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsRes = await axios.get(`${API_BASE_URL}/api/bracelets/`);
+        const braceletsRes = await axios.get(`${API_BASE_URL}/api/bracelets/`);
+        const chainsRes = await axios.get(`${API_BASE_URL}/api/chains/`);
 
-        const fetchedProducts = (productsRes.data as any[]).map((p) => ({
+        const fetchedBracelets = (braceletsRes.data as any[]).map((p) => ({
           ...p,
           category: p.category,
           imageUrl: p.imageUrl,
           category_slug: p.category_slug ?? null,
           category_name: p.category_name ?? null,
           id: `bracelet-${p.id}`,
+          api_id: p.id,
         }));
-        setAllProducts(fetchedProducts);
+
+        const fetchedChains = (chainsRes.data as any[]).map((p) => ({
+          ...p,
+          category: p.category,
+          imageUrl: p.imageUrl,
+          category_slug: p.category_slug ?? null,
+          category_name: p.category_name ?? null,
+          id: `chain-${p.id}`,
+          api_id: p.id,
+        }));
+
+        setAllProducts([...fetchedBracelets, ...fetchedChains]);
       } catch (err) {
         setError(err);
       } finally {
@@ -136,17 +154,17 @@ export default function Products() {
       case "fashion_bracelets":
         return product.category === "Bracelet" && /fashion|style|trend/.test(name);
       case "all_chains":
-        return product.category === "Necklace" || name.includes("chain");
+        return product.category === "Necklace" || product.category === "Chain" || name.includes("chain");
       case "cuban_chain":
-        return (product.category === "Necklace" || name.includes("chain")) && name.includes("cuban");
+        return (product.category === "Necklace" || product.category === "Chain" || name.includes("chain")) && name.includes("cuban");
       case "rope_chain":
-        return (product.category === "Necklace" || name.includes("chain")) && name.includes("rope");
+        return (product.category === "Necklace" || product.category === "Chain" || name.includes("chain")) && name.includes("rope");
       case "figaro_chain":
-        return (product.category === "Necklace" || name.includes("chain")) && name.includes("figaro");
+        return (product.category === "Necklace" || product.category === "Chain" || name.includes("chain")) && name.includes("figaro");
       case "gold_chain":
-        return (product.category === "Necklace" || name.includes("chain")) && name.includes("gold");
+        return (product.category === "Necklace" || product.category === "Chain" || name.includes("chain")) && name.includes("gold");
       case "silver_chain":
-        return (product.category === "Necklace" || name.includes("chain")) && name.includes("silver");
+        return (product.category === "Necklace" || product.category === "Chain" || name.includes("chain")) && name.includes("silver");
       case "signature_fashion":
         return product.is_signature_piece === true && product.signature_category === "fashion";
       case "signature_trending":
@@ -167,7 +185,7 @@ export default function Products() {
       case "bracelet":
         return product.category === "Bracelet";
       case "chain":
-        return product.category === "Necklace" || (product.name || "").toLowerCase().includes("chain");
+        return product.category === "Necklace" || product.category === "Chain" || (product.name || "").toLowerCase().includes("chain");
       default: {
         if (typeof filterCategory === "string" && filterCategory.startsWith("cat:")) {
           const target = filterCategory.slice(4);
@@ -190,6 +208,12 @@ export default function Products() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEO 
+        title="Our Products - Reyan Luxe"
+        description="Discover our exquisite collection of luxury bracelets and chains. Shop from our curated selection of premium jewelry with customization options."
+        keywords="luxury bracelets, chains, custom jewelry, womens bracelets, mens bracelets, gold chains, silver chains"
+        url="https://reyanluxe.com/products"
+      />
       {/* <Navbar /> */}
       <main className="container mx-auto px-4 py-8 pt-20">
         <h1 className="text-5xl font-bold text-center mb-12">Our Products</h1>
@@ -270,7 +294,7 @@ export default function Products() {
                 <p className="text-sm text-muted-foreground">
                   Category: {formatCategoryName(product.category, product.category_name)}
                 </p>
-                <Button className="mt-4 w-full">View Details</Button>
+                <Button className="mt-4 w-full" onClick={() => navigate(`/product/${product.api_id}`)}>View Details</Button>
               </CardContent>
             </Card>
           ))}

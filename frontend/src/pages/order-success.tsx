@@ -2,10 +2,17 @@ import { Link } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
+import { SEO } from "@/components/SEO";
 
 export default function OrderSuccess() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+      <SEO 
+        title="Order Success - Reyan Luxe"
+        description="Your order has been placed successfully! Thank you for purchasing from Reyan Luxe. Track your order and view order details."
+        keywords="order success, order confirmation, purchase complete, reyan luxe order, jewelry order"
+        url="https://reyanluxe.com/order-success"
+      />
       {/* <Navbar /> */}
       <div className="w-full max-w-md text-center">
         <main className="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center text-center">

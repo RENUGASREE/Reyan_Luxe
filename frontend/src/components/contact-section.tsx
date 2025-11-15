@@ -1,9 +1,9 @@
-import WhatsappSvg from "/public/whatsapp.svg?react";
+// Removed unused and unavailable WhatsappSvg import
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Send, Instagram, MapPin, Mail, Phone, MessageCircle, Facebook } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+// import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+
+interface ContactSubmission {
+  name: string;
+  email: string;
+  message: string;
+}
 
 export default function ContactSection() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -21,7 +27,7 @@ export default function ContactSection() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting }
-  } = useForm({
+  } = useForm<ContactSubmission>({
 
     defaultValues: {
       name: "",
@@ -72,7 +78,7 @@ export default function ContactSection() {
     }
   });
 
-  const onSubmit = (data: InsertContactSubmission) => {
+  const onSubmit = (data: ContactSubmission) => {
     contactMutation.mutate(data);
   };
 
@@ -211,13 +217,7 @@ export default function ContactSection() {
                     transition={{ type: "spring", stiffness: 400 }}
                     data-testid={`social-link-${social.label.toLowerCase()}`}
                   >
-                    {social.isSvg ? (
-                      <social.component className="h-8 w-8" />
-                    ) : social.isImage ? (
-                      <img src={social.imageSrc} alt={social.label} className="h-8 w-8" />
-                    ) : (
-                      <social.icon className="h-8 w-8" />
-                    )}
+                    <social.icon className="h-8 w-8" />
                   </motion.a>
                 ))}
               </div>

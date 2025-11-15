@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <link rel="icon" type="image/svg+xml" href="/Reyan_Luxe/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="keywords" content="womens bracelets, bracelets, armband bracelets, female bracelets, women's bracelets sale, his and hers gold bracelets, galaxy charm bracelet, bracelet bundles, buy bracelets, bracelets for women online shopping, Reyan Luxe, luxury bracelets, gemstone jewelry, men's fashion accessories, women's jewelry, custom bracelets, jewelry brand India, online jewelry store, buy couple bracelets India, buy handmade luxury bracelets online, men’s fashion bracelet with crystals, minimalist couple bracelets in India">
     <meta name="description" content="Discover exquisite luxury bracelets at Reyan Luxe. Shop online for women's and men's bracelets, including custom, gemstone, and handmade designs. Your premier jewelry brand in India for elegant and unique bracelets.">
@@ -10,6 +10,18 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Handle GitHub Pages SPA redirects from 404.html -->
+    <script>
+      (function() {
+        var l = window.location;
+        if (l.search && l.search.startsWith("?/")) {
+          var path = l.search.slice(2).split("&").map(function(s) {
+            return s.replace(/~and~/g, "&");
+          }).join("?");
+          window.history.replaceState(null, null, l.pathname.replace(/\/$/, "") + "/" + path + l.hash);
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

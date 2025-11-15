@@ -33,12 +33,12 @@ export default function Navbar() {
   const baseNavItems = [
     { label: "Home", path: "/" },
     { label: "Products", path: "/products" },
+    { label: "Wishlist", path: "/wishlist" },
     { label: "About", path: "/about" },
     { label: "Contact", path: "/contact" },
     { label: "Cart", path: "/cart" },
     { label: "Admin", path: "/admin" },
-    { label: "Live Site", href: "https://RENUGASREE.github.io/Reyan_Luxe/" },
-  ];
+  ] as const;
 
   const authNavItems = user
     ? [{ label: `Welcome, ${user.username}`, path: "#" }, { label: "Logout", onClick: logout, path: "#" }]
@@ -78,7 +78,7 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
             {navItems.map((item) => (
-              item.onClick ? (
+              ("onClick" in item) ? (
                 <Button
                   key={item.label}
                   onClick={item.onClick}
@@ -88,10 +88,10 @@ export default function Navbar() {
                   {item.label}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                 </Button>
-              ) : item.href ? (
+              ) : ("href" in item) ? (
                 <a
                   key={item.label}
-                  href={item.href}
+                  href={item.href as string}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-medium text-cream hover:text-primary transition-colors relative group"
@@ -151,22 +151,21 @@ export default function Navbar() {
           >
             <div className="flex flex-col justify-center items-center h-full space-y-8">
               {navItems.map((item, index) => (
-                item.onClick ? (
-                  <Button
+                ("onClick" in item) ? (
+                  <motion.button
                     key={item.label}
                     onClick={() => { item.onClick(); setIsMobileMenuOpen(false); }}
-                    variant="ghost"
-                    className="text-white text-2xl font-playfair"
+                    className="text-white text-2xl font-playfair bg-transparent border-none cursor-pointer"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
                     {item.label}
-                  </Button>
+                  </motion.button>
                 ) : (
                   <motion.a
                     key={item.label}
-                    href={(item as any).href ?? item.path}
+                    href={("href" in item) ? item.href as string : item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-white text-2xl font-playfair"
                     initial={{ opacity: 0, y: 20 }}

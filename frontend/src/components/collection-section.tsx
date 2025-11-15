@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Gem, Heart, Star, Leaf, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ export default function CollectionSection() {
   const [bracelets, setBracelets] = useState<BraceletCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dynamicFilters, setDynamicFilters] = useState<string[]>(["all", "fashion_bracelets", "trending_bracelets", "latest_bracelet"]); // Fixed filters
+  const dynamicFilters: string[] = ["all", "fashion_bracelets", "trending_bracelets", "latest_bracelet"]; // Fixed filters
 
   useEffect(() => {
     const fetchBracelets = async () => {
@@ -190,14 +190,14 @@ export default function CollectionSection() {
   );
 }
 
-interface BraceletProps {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  image_upload: string; // New field for uploaded image
-  image_url: string; // New field for image URL
-  is_signature_piece: boolean;
-  category: string;
-  signature_category: string;
-}
+// interface BraceletProps {
+//   id: number;
+//   name: string;
+//   description: string;
+//   price: string;
+//   image_upload: string; // New field for uploaded image
+//   image_url: string; // New field for image URL
+//   is_signature_piece: boolean;
+//   category: string;
+//   signature_category: string;
+// }

@@ -1,15 +1,16 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+// import { Input } from "@/components/ui/input";
+// import { Button } from "@/components/ui/button";
+// import { Label } from "@/components/ui/label";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiRequest } from '../lib/queryClient';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../hooks/use-toast'; // Import useToast
+import PasswordInput from "@/components/PasswordInput";
 
 const registerSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -31,25 +32,30 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectPath }) => {
   const navigate = useNavigate();
   const { toast } = useToast(); // Initialize useToast
 
-  const onSubmit = async (data: RegisterFormInputs) => {
+const onSubmit = async (data: RegisterFormInputs) => {
     try {
-      const response = await apiRequest('POST', '/api/users/', data);
+      // Use the dedicated registration endpoint
+      await apiRequest('POST', '/api/register/', {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
       toast({
         title: "Registration successful!",
-        description: "You can now log in.",
+        description: "Logging you in...",
         variant: "default",
       });
-      // Automatically log in after registration
+      // Automatically log in after registration using email-based auth
       const loginResponse = await apiRequest('POST', '/api/login/', {
-        username: data.username,
+        email: data.email,
         password: data.password,
       });
       const loginData = await loginResponse.json();
-      login(loginData.token, { id: loginData.user_id, username: data.username, email: data.email });
-      navigate(redirectPath || '/'); // Redirect to home page or specified path after successful login
+      login(loginData.token, { id: loginData.user_id, username: loginData.username || data.username, email: loginData.email });
+      navigate(redirectPath || '/');
     } catch (error: any) {
         console.error("Registration error:", error);
-        const errorMessage = error.response?.data?.username?.[0] || 'Registration failed. Please try again.';
+        const errorMessage = (error?.message) || 'Registration failed. Please try again.';
         toast({
           title: "Registration Failed",
           description: errorMessage,
@@ -82,9 +88,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectPath }) => {
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-foreground">Password</label>
-        <input
+        <PasswordInput
           id="password"
-          type="password"
+          placeholder="Password"
           {...register('password')}
           className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-foreground"
         />

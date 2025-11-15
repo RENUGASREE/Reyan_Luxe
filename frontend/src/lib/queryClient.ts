@@ -1,11 +1,28 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:8000";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorText = res.statusText;
+    try {
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await res.clone().json();
+        // Prefer structured error fields when available
+        errorText = (data && (data.error || data.detail || data.message)) ?? JSON.stringify(data);
+      } else {
+        errorText = (await res.text()) || res.statusText;
+      }
+    } catch (_) {
+      try {
+        errorText = (await res.text()) || res.statusText;
+      } catch (_) {
+        // fall back to status text
+        errorText = res.statusText;
+      }
+    }
+    throw new Error(`${res.status}: ${errorText}`);
   }
 }
 
@@ -20,6 +37,16 @@ export async function apiRequest(
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
+
+  // Attach auth token if present
+  try {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      headers['Authorization'] = `Token ${token}`;
+    }
+  } catch (_) {
+    // ignore storage errors
+  }
 
   if (method !== 'GET') {
     const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];

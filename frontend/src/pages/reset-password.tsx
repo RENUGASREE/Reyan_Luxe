@@ -1,75 +1,62 @@
-import axios from 'axios';
+import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
-import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/footer";
+import { useToast } from "@/hooks/use-toast";
+import { SEO } from "@/components/SEO";
 
 export default function ResetPassword() {
-  const { token } = useParams<{ token: string }>(); // Assuming a token is passed in the URL
+  // const { token } = useParams<{ token: string }>(); // Token not currently used
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || '';
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast({ title: "Passwords do not match", description: "Please confirm both passwords are identical.", variant: "destructive" });
       return;
     }
 
     try {
       // Step 1: Verify OTP
-      const verifyResponse = await axios.post(
-        "/api/verify_otp/",
-        {
-          email,
-          otp,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const verifyResponse = await apiRequest('POST', '/api/verify-otp/', { email, otp_code: otp });
 
-      if (verifyResponse.status === 200) {
+      if (verifyResponse.ok) {
         // Step 2: Reset Password if OTP is verified
-        const resetResponse = await axios.post(
-          "/api/reset_password/",
-          {
-            email,
-            otp,
-            new_password: password,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const resetResponse = await apiRequest('POST', '/api/reset-password/', {
+          email,
+          otp_code: otp,
+          new_password: password,
+        });
 
-        if (resetResponse.status === 200) {
-          alert("Password has been reset successfully!");
+        if (resetResponse.ok) {
+          toast({ title: "Password reset successful", description: "You can now log in." });
           navigate("/login");
         }
       }
     } catch (error: any) {
       console.error("Error during password reset:", error);
-      if (error.response && error.response.data && error.response.data.detail) {
-        alert(`Password reset failed: ${error.response.data.detail}`);
-      } else {
-        alert("Password reset failed. Please try again.");
-      }
+      const message = error?.message || 'Password reset failed. Please try again.';
+      toast({ title: "Password reset failed", description: message, variant: "destructive" });
     }
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+      <SEO 
+        title="Reset Password - Reyan Luxe"
+        description="Reset your Reyan Luxe account password. Create a new password for your account."
+        keywords="reset password, new password, reyan luxe password reset, account security"
+        url="https://reyanluxe.com/reset-password"
+      />
       {/* <Navbar /> */}
       <div className="w-full max-w-md">
         <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">

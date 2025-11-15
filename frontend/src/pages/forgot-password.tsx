@@ -1,41 +1,44 @@
-import axios from 'axios';
+import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/footer";
+import { useToast } from "@/hooks/use-toast";
+import { SEO } from "@/components/SEO";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "/api/send_otp/",
-        {
-          email,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.status === 200) {
-        alert("OTP sent to your email (if registered).");
-        navigate("/reset-password", { state: { email } });
+      const response = await apiRequest('POST', '/api/send-otp/', { email });
+      const data = await response.json().catch(() => ({}));
+      toast({ title: "OTP request", description: data?.message ? `${data.message}${data?.email === 'failed' ? ' (email failed)' : ''}` : 'Request processed.', variant: data?.email === 'failed' ? 'destructive' : 'default' });
+      // In DEBUG, we may have an OTP preview to aid development
+      if (data?.debug?.otp_preview) {
+        console.log('DEBUG OTP:', data.debug.otp_preview);
       }
-    } catch (error) {
+      navigate("/reset-password", { state: { email } });
+    } catch (error: any) {
       console.error("Error sending OTP request:", error);
-      alert("Failed to send OTP. Please try again.");
+      const message = error?.message || 'Failed to send OTP. Please try again.';
+      toast({ title: "OTP failed", description: message, variant: "destructive" });
     }
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+      <SEO 
+        title="Forgot Password - Reyan Luxe"
+        description="Reset your Reyan Luxe account password. Enter your email to receive a password reset link."
+        keywords="forgot password, password reset, reyan luxe password, account recovery"
+        url="https://reyanluxe.com/forgot-password"
+      />
       {/* <Navbar /> */}
       <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
         <div className="w-full max-w-md border p-8 rounded-lg shadow-lg">

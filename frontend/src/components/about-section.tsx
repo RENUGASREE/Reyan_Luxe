@@ -1,14 +1,11 @@
-import { Gem, Hand, Infinity } from "lucide-react";
-
+import { Gem, Hand, Infinity as InfinityIcon } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { apiRequest } from "@/lib/queryClient";
 
 
 
 export default function AboutSection() {
-  const [originsImage, setOriginsImage] = useState<string | null>("/placeholders/placeholder.png");
-  const [craftsmanshipImage, setCraftsmanshipImage] = useState<string | null>("/placeholders/placeholder.png");
+  const originsImage: string | null = "/placeholders/placeholder.png";
+  const craftsmanshipImage: string | null = "/placeholders/placeholder.png";
 
   const philosophyItems = [
     {
@@ -22,7 +19,7 @@ export default function AboutSection() {
       description: "Handcrafted by skilled artisans with attention to detail"
     },
     {
-      icon: Infinity,
+      icon: InfinityIcon,
       title: "Timeless",
       description: "Designs that transcend trends and celebrate individuality"
     }

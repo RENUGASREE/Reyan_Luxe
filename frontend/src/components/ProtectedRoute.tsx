@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -9,14 +9,15 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
     if (!user) {
       setShowMessage(true);
       const timer = setTimeout(() => {
-        // Redirect after showing message
-        window.location.href = '/login'; // Manual redirect after message
+        // Redirect after showing message using router (respects basename)
+        navigate('/login', { replace: true });
       }, 3000); // Show message for 3 seconds
       return () => clearTimeout(timer);
     }

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
 import { Input } from "@/components/ui/input";
-import apiRequest from "@/lib/api-request";
+import { apiRequest } from "@/lib/queryClient";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,13 +14,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { SEO } from "@/components/SEO";
 
 interface CartItem {
   id: string;
   name: string;
   price: number;
   quantity: number;
-  image: string;
+  image: string; // normalized client-side from image_url/imageUrl
 }
 
 export default function Cart() {
@@ -30,6 +32,7 @@ export default function Cart() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast: _toast } = useToast();
 
   useEffect(() => {
     if (!user) {
@@ -40,8 +43,17 @@ export default function Cart() {
     const fetchCartItems = async () => {
       try {
         setLoading(true);
-        const response = await apiRequest.get("/api/cart-items/"); // Assuming a new API endpoint for cart items
-        setCartItems(response.data);
+        const response = await apiRequest('GET', '/api/cart-items/');
+        const data = await response.json();
+        // Normalize backend payload to match UI expectations
+        const normalized: CartItem[] = (Array.isArray(data) ? data : []).map((item: any) => ({
+          id: String(item.id ?? item.product_id ?? ''),
+          name: item.name ?? '',
+          price: Number(item.price ?? 0),
+          quantity: Number(item.quantity ?? 1),
+          image: item.image_url || item.imageUrl || item.image || ''
+        }));
+        setCartItems(normalized);
       } catch (err) {
         setError("Failed to fetch cart items.");
         console.error("Error fetching cart items:", err);
@@ -75,6 +87,12 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEO 
+        title="Shopping Cart - Reyan Luxe"
+        description="Review your selected luxury jewelry items in your shopping cart. Complete your purchase of customized bracelets and chains."
+        keywords="shopping cart, luxury jewelry cart, custom jewelry checkout, reyan luxe cart"
+        url="https://reyanluxe.com/cart"
+      />
       {/* <Navbar /> */}
       <main className="container mx-auto px-4 py-8 pt-20">
         <h1 className="text-5xl font-bold text-center mb-12">Your Cart</h1>
@@ -174,7 +192,12 @@ export default function Cart() {
                     <span>Total:</span>
                     <span>₹{total.toLocaleString()}</span>
                   </div>
-                  <Button className="w-full mt-6">Proceed to Checkout</Button>
+                  <Button 
+                    className="w-full mt-6" 
+                    onClick={() => navigate("/checkout")}
+                  >
+                    Proceed to Checkout
+                  </Button>
                 </div>
               </div>
             </div>

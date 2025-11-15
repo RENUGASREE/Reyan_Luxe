@@ -2,8 +2,9 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import PasswordInput from "@/components/PasswordInput";
+// import { Button } from "@/components/ui/button";
+// import { Label } from "@/components/ui/label";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiRequest } from '../lib/queryClient';
@@ -12,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../hooks/use-toast'; // Import useToast
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  identifier: z.string().min(1, 'Email or Username is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -32,8 +33,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectPath }) => {
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
-      const response = await apiRequest('POST', '/api/login/', data);
-      login(response.token, { id: response.user_id, username: data.username, email: response.email });
+      const payload = (data.identifier.includes('@'))
+        ? { email: data.identifier, password: data.password }
+        : { username: data.identifier, password: data.password };
+      const response = await apiRequest('POST', '/api/login/', payload);
+      const loginData = await response.json();
+      login(loginData.token, { id: loginData.user_id, username: loginData.username || loginData.email, email: loginData.email });
       toast({
         title: "Login successful!",
         description: "Welcome back!",
@@ -54,19 +59,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectPath }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <label htmlFor="username" className="block text-sm font-medium text-foreground">Username</label>
+        <label htmlFor="identifier" className="block text-sm font-medium text-foreground">Email or Username</label>
         <Input
           type="text"
-          placeholder="Username"
-          {...register("username")}
+          placeholder="Email or Username"
+          {...register("identifier")}
           className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-foreground"
         />
-        {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>}
+        {errors.identifier && <p className="mt-1 text-sm text-red-600">{errors.identifier.message}</p>}
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-foreground">Password</label>
-        <Input
-          type="password"
+        <PasswordInput
           placeholder="Password"
           {...register("password")}
           className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-foreground"

@@ -1,29 +1,58 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PasswordInput from "@/components/PasswordInput";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/footer";
+import { apiRequest } from "../lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "../contexts/AuthContext";
+import { SEO } from "@/components/SEO";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast({ title: "Passwords do not match", description: "Please confirm both passwords are identical.", variant: "destructive" });
       return;
     }
-    console.log("Registration attempt with:", { name, email, password });
-    // Here you would typically handle user registration (e.g., API call)
-    alert("Registration functionality not yet implemented.");
+    try {
+      // Create account
+      await apiRequest('POST', '/api/register/', {
+        username: name,
+        email,
+        password,
+      });
+      toast({ title: "Registration successful", description: "Logging you in…" });
+      // Auto-login
+      const res = await apiRequest('POST', '/api/login/', { email, password });
+      const data = await res.json();
+      login(data.token, { id: data.user_id, username: data.username || email, email: data.email });
+      navigate('/');
+    } catch (err: any) {
+      console.error('Registration failed:', err);
+      const message = err?.message || 'Registration failed. Please try again.';
+      toast({ title: "Registration failed", description: message, variant: "destructive" });
+    }
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+      <SEO 
+        title="Register - Reyan Luxe"
+        description="Create your Reyan Luxe account to customize jewelry, track orders, and enjoy exclusive benefits."
+        keywords="register, create account, reyan luxe signup, jewelry account, customer registration"
+        url="https://reyanluxe.com/register"
+      />
       {/* <Navbar /> */}
       <div className="w-full max-w-md">
         <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
@@ -54,9 +83,8 @@ export default function Register() {
               </div>
               <div>
                 <Label htmlFor="password">Password</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -65,9 +93,8 @@ export default function Register() {
               </div>
               <div>
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   placeholder="********"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
