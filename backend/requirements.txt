@@ -1,2 +1,6 @@
-Django
+Django>=4.2
 Pillow
+djangorestframework
+django-cors-headers
+whitenoise
+twilio

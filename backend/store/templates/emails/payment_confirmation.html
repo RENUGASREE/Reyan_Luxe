@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmed - {{ order_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            color: #e74c3c;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .success-icon {
+            font-size: 48px;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        .payment-details {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .order-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #27ae60;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">Reyan Luxe</div>
+            <div class="success-icon">✓</div>
+            <h1>Payment Confirmed!</h1>
+        </div>
+
+        <div class="payment-details">
+            <p>Great news! Your payment has been successfully processed.</p>
+            <p class="order-number">Order Number: {{ order_number }}</p>
+            <div class="amount">
+                Amount Paid: ₹{{ amount }}
+            </div>
+            <p><strong>Payment Method:</strong> {{ payment_method }}</p>
+            <p>Your order is now being prepared for shipment. We'll send you an email with tracking information once your order ships.</p>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for your purchase!</p>
+            <p>If you have any questions, please contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+            <a href="https://reyanluxe.com" class="button">Visit Our Store</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# GitHub Pages Configuration
+# This file ensures GitHub Pages serves from the docs directory
+
+# Disable Jekyll processing
+jekyll: false
+
+# Set the source directory for GitHub Pages
+source: docs
+
+# Set the base URL for the site
+baseurl: "/Reyan_Luxe"
+
+# Site metadata
+title: "Reyan Luxe"
+description: "Luxury Customized Jewelry Store"
+keywords: "womens bracelets, chains, custom jewelry, luxury bracelets, gemstone jewelry, handmade jewelry"

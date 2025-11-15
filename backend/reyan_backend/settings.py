@@ -32,18 +32,28 @@ SECRET_KEY = 'replace-me-with-secure-key'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://RENUGASREE.github.io',
+    'https://renugasree.github.io',
+]
 
 # Email settings for OTP
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP server
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'reyanluxe@gmail.com'  # Replace with your email address
-EMAIL_HOST_PASSWORD = 'pxao ulvl gycm ijae'  # Replace with your email password
-
-DEFAULT_FROM_EMAIL = 'reyanluxe@gmail.com'
-SERVER_EMAIL = 'reyanluxe@gmail.com'
+# Use console backend in development to avoid SMTP issues
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'dev@reyanluxe.local'
+    SERVER_EMAIL = 'dev@reyanluxe.local'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP server
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'reyanluxe@gmail.com'  # Replace with your email address
+    EMAIL_HOST_PASSWORD = 'pxao ulvl gycm ijae'  # Replace with your email password
+    DEFAULT_FROM_EMAIL = 'reyanluxe@gmail.com'
+    SERVER_EMAIL = 'reyanluxe@gmail.com'
 
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -88,7 +98,12 @@ ROOT_URLCONF = 'reyan_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'), os.path.join(BASE_DIR, '..', 'frontend', 'build'), os.path.join(BASE_DIR, 'newsletter', 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            # Serve built frontend for production
+            os.path.join(BASE_DIR, '..', 'frontend', 'dist'),
+            os.path.join(BASE_DIR, 'newsletter', 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -112,6 +127,9 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = []
 
+# Use custom user model from store app
+AUTH_USER_MODEL = 'store.User'
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -120,7 +138,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '..', 'static_collected')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, '..', 'frontend', 'build', 'static')]
+# Vite outputs to "dist"; assets are under "dist/assets"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, '..', 'frontend', 'dist', 'assets')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media settings for uploaded images
@@ -130,7 +149,27 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
+    "https://renugasree.github.io",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+# Allow sending cookies/credentials from the frontend dev server
+CORS_ALLOW_CREDENTIALS = True
+# When credentials are allowed, do not use wildcard origins
+CORS_ALLOW_ALL_ORIGINS = False
+
+# Optional: trust the dev frontend for CSRF on non-GET requests (token flows usually do not require this)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+]
 
 APPEND_SLASH = False
+
+# Optional Twilio configuration (guarded in views)
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '')
+
+# Razorpay Payment Gateway Configuration
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_1234567890')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'your_secret_key_here')
+RAZORPAY_WEBHOOK_SECRET = os.environ.get('RAZORPAY_WEBHOOK_SECRET', '')
