@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Reyan Luxe - Routing Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-link { display: block; margin: 10px 0; padding: 10px; background: #f0f0f0; text-decoration: none; color: #333; }
+        .test-link:hover { background: #e0e0e0; }
+        .info { background: #e8f4f8; padding: 15px; margin: 20px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Reyan Luxe - GitHub Pages Routing Test</h1>
+    
+    <div class="info">
+        <h3>Current Page Info:</h3>
+        <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+        <p><strong>Base Path:</strong> <span id="base-path"></span></p>
+        <p><strong>Expected Route:</strong> <span id="expected-route"></span></p>
+    </div>
+
+    <h3>Test Navigation Links:</h3>
+    <a href="/Reyan_Luxe/" class="test-link">🏠 Home Page</a>
+    <a href="/Reyan_Luxe/about" class="test-link">ℹ️ About Page</a>
+    <a href="/Reyan_Luxe/products" class="test-link">💎 Products Page</a>
+    <a href="/Reyan_Luxe/contact" class="test-link">📞 Contact Page</a>
+    <a href="/Reyan_Luxe/cart" class="test-link">🛒 Cart Page</a>
+    <a href="/Reyan_Luxe/login" class="test-link">🔐 Login Page</a>
+
+    <div class="info">
+        <h3>Instructions:</h3>
+        <p>1. Click on any link above to test navigation</p>
+        <p>2. If you see "404 - File not found", the redirect script needs adjustment</p>
+        <p>3. If the main app loads but shows wrong content, the React Router basename may need adjustment</p>
+        <p>4. Check browser console for redirect logs</p>
+    </div>
+
+    <script>
+        // Display current page info
+        const l = window.location;
+        document.getElementById('current-url').textContent = l.href;
+        document.getElementById('base-path').textContent = '/Reyan_Luxe/';
+        
+        // Extract expected route from current URL
+        const pathSegments = l.pathname.split('/');
+        const route = pathSegments.slice(3).join('/') || 'home';
+        document.getElementById('expected-route').textContent = route;
+
+        // Log redirect info
+        console.log('Current location:', l.href);
+        console.log('Path segments:', pathSegments);
+        console.log('Expected route:', route);
+    </script>
+</body>
+</html>

@@ -6,16 +6,39 @@
     <meta name="robots" content="noindex" />
     <script>
       // SPA GitHub Pages redirect (rafgraph/spa-github-pages)
+      // This script handles client-side routing for GitHub Pages
       (function() {
         var l = window.location;
-        var repoBaseSegments = 2; // for /RENUGASREE/Reyan_Luxe set to 2
-        var pathSegments = l.pathname.split('/').slice(0, 1 + repoBaseSegments).join('/');
-        var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + pathSegments + '/?/' +
-          l.pathname.slice(1).split('/').slice(repoBaseSegments).join('/') +
-          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') + l.hash;
-        l.replace(target);
+        
+        // For GitHub Pages with repository name: https://username.github.io/repository-name
+        // We need to account for the repository base path
+        var repoName = 'Reyan_Luxe';
+        var username = 'RENUGASREE';
+        
+        // Build the correct redirect URL
+        var basePath = '/' + username + '/' + repoName + '/';
+        var currentPath = l.pathname;
+        
+        // Extract the route after the base path
+        var route = currentPath.replace(basePath, '');
+        
+        // Build the redirect URL with the SPA redirect format
+        var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + basePath + '?/' + route;
+        
+        // Add query parameters and hash if they exist
+        if (l.search) {
+          redirectUrl += '&' + l.search.slice(1).replace(/&/g, '~and~');
+        }
+        if (l.hash) {
+          redirectUrl += l.hash;
+        }
+        
+        console.log('GitHub Pages SPA redirect:', currentPath, '->', redirectUrl);
+        l.replace(redirectUrl);
       })();
     </script>
   </head>
-  <body></body>
+  <body>
+    <p>Redirecting to Reyan Luxe...</p>
+  </body>
 </html>

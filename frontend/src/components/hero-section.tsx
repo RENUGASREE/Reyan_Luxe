@@ -23,6 +23,16 @@ export default function HeroSection() {
   useEffect(() => {
     const fetchProductImages = async () => {
       try {
+        // Check if we're in production (GitHub Pages) or development
+        const isProduction = window.location.hostname !== 'localhost';
+        
+        if (isProduction) {
+          // In production, use fallback images since API won't be available
+          console.log('Production environment detected, using fallback images');
+          setProductImages(slideshowImages);
+          return;
+        }
+
         const response = await axios.get(`${API_BASE_URL}/api/bracelets/`);
         const braceletsRes = response.data as any[];
 
