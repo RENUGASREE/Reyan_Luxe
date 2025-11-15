@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reyan Luxe - Simple Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-link {
+            display: inline-block;
+            margin: 10px 5px;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .test-link:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Reyan Luxe - Simple Test Page</h1>
+        
+        <div class="info">
+            <h3>📍 Current Status</h3>
+            <p><strong>URL:</strong> <span id="current-url"></span></p>
+            <p><strong>Test Time:</strong> <span id="test-time"></span></p>
+            <p><strong>GitHub Pages:</strong> <span id="github-status">Checking...</span></p>
+        </div>
+
+        <h3>🔗 Direct Navigation Links</h3>
+        <p>Right-click and select "Open in new tab" to test each page:</p>
+        
+        <div>
+            <a href="https://renugasree.github.io/Reyan_Luxe/" class="test-link" target="_blank">🏠 Homepage</a>
+            <a href="https://renugasree.github.io/Reyan_Luxe/about" class="test-link" target="_blank">ℹ️ About</a>
+            <a href="https://renugasree.github.io/Reyan_Luxe/products" class="test-link" target="_blank">💎 Products</a>
+            <a href="https://renugasree.github.io/Reyan_Luxe/contact" class="test-link" target="_blank">📞 Contact</a>
+            <a href="https://renugasree.github.io/Reyan_Luxe/login" class="test-link" target="_blank">🔐 Login</a>
+        </div>
+
+        <h3>🧪 Test Instructions</h3>
+        <ol>
+            <li><strong>Wait 5 minutes</strong> after this page loads for GitHub Pages to update</li>
+            <li><strong>Open each link in a new tab</strong> using right-click</li>
+            <li><strong>Check for 404 errors</strong> - you should see the actual site content</li>
+            <li><strong>Test the homepage first</strong> - it should show beautiful jewelry images</li>
+            <li><strong>Verify navigation works</strong> - click around the site</li>
+        </ol>
+
+        <div class="info">
+            <h3>✅ Expected Results</h3>
+            <ul>
+                <li>Homepage loads with jewelry images in hero section</li>
+                <li>No 404 errors when navigating between pages</li>
+                <li>All pages display content properly</li>
+                <li>Site works on both mobile and desktop</li>
+            </ul>
+        </div>
+
+        <div class="info" style="background: #fff3cd;">
+            <h3>⚠️ If You See Issues</h3>
+            <ul>
+                <li><strong>404 errors:</strong> GitHub Pages is still updating, wait 10 more minutes</li>
+                <li><strong>Broken images:</strong> Clear browser cache and try again</li>
+                <li><strong>Redirect loops:</strong> The fix should prevent this, but try incognito mode</li>
+                <li><strong>Nothing loads:</strong> Check if GitHub Pages is enabled in repository settings</li>
+            </ul>
+        </div>
+
+        <h3>📱 Alternative Test Method</h3>
+        <p>If the links above don't work, try accessing your site directly:</p>
+        <p><strong>Copy and paste this URL:</strong><br>
+        <code style="background: #f8f9fa; padding: 10px; border-radius: 5px; display: inline-block; margin: 10px 0;">
+            https://renugasree.github.io/Reyan_Luxe/
+        </code>
+        </p>
+    </div>
+
+    <script>
+        // Display current information
+        const l = window.location;
+        document.getElementById('current-url').textContent = l.href;
+        document.getElementById('test-time').textContent = new Date().toLocaleString();
+        
+        // Check if we're on GitHub Pages
+        const isGithubPages = l.hostname === 'renugasree.github.io';
+        document.getElementById('github-status').textContent = isGithubPages ? 
+            '✅ Active (renugasree.github.io)' : '⚠️ Not on GitHub Pages';
+        
+        console.log('=== Reyan Luxe Simple Test ===');
+        console.log('Current URL:', l.href);
+        console.log('Is GitHub Pages:', isGithubPages);
+        console.log('Expected site URL: https://renugasree.github.io/Reyan_Luxe/');
+        console.log('===============================');
+    </script>
+</body>
+</html>

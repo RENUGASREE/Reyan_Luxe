@@ -71,6 +71,69 @@ export default function Products() {
   ];
 
   useEffect(() => {
+    const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
+
+    if (isProd) {
+      const fallbackProducts = [
+        {
+          id: "bracelet-101",
+          api_id: 101,
+          name: "Aurora Gold Bracelet",
+          description: "Elegant gold bracelet with minimalist design",
+          price: "3999",
+          imageUrl: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=1200&q=60",
+          is_signature_piece: true,
+          signature_category: "fashion",
+          category: "Bracelet",
+          category_slug: "gold_bracelets",
+          category_name: "Gold Bracelets",
+        },
+        {
+          id: "bracelet-102",
+          api_id: 102,
+          name: "Crystal Luxe Bracelet",
+          description: "Handmade crystal bracelet for refined style",
+          price: "2999",
+          imageUrl: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=60",
+          is_signature_piece: true,
+          signature_category: "trending",
+          category: "Bracelet",
+          category_slug: "crystal_bracelets",
+          category_name: "Crystal Bracelets",
+        },
+        {
+          id: "chain-201",
+          api_id: 201,
+          name: "Rope Chain Necklace",
+          description: "Classic rope chain with polished finish",
+          price: "4999",
+          imageUrl: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=60",
+          is_signature_piece: false,
+          signature_category: null,
+          category: "Chain",
+          category_slug: "rope_chain",
+          category_name: "Rope Chain",
+        },
+        {
+          id: "chain-202",
+          api_id: 202,
+          name: "Figaro Chain Necklace",
+          description: "Premium figaro chain for everyday wear",
+          price: "4599",
+          imageUrl: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=60",
+          is_signature_piece: false,
+          signature_category: null,
+          category: "Chain",
+          category_slug: "figaro_chain",
+          category_name: "Figaro Chain",
+        },
+      ];
+
+      setAllProducts(fallbackProducts);
+      setLoading(false);
+      return;
+    }
+
     const fetchProducts = async () => {
       try {
         const braceletsRes = await axios.get(`${API_BASE_URL}/api/bracelets/`);
@@ -108,11 +171,24 @@ export default function Products() {
   }, [filterCategory]);
 
   useEffect(() => {
+    const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
+    if (isProd) {
+      setBraceletCategories([
+        { slug: "gold_bracelets", name: "Gold Bracelets" },
+        { slug: "crystal_bracelets", name: "Crystal Bracelets" },
+        { slug: "fashion_bracelets", name: "Fashion Bracelets" },
+      ] as any);
+      setChainCategories([
+        { slug: "rope_chain", name: "Rope Chain" },
+        { slug: "figaro_chain", name: "Figaro Chain" },
+      ] as any);
+      return;
+    }
+
     const fetchCategories = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/categories/`);
         const cats = res.data || [];
-        // setCategories(cats);
         const braceletCats = cats
           .filter((c) => c.group === "bracelet" && c.show_in_menu)
           .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));

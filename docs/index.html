@@ -12,15 +12,38 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Handle GitHub Pages SPA redirects from 404.html -->
+    
+    <!-- GitHub Pages SPA redirect handler - Fixed Version -->
     <script>
+      // Handle redirects from 404.html and clean up URLs
       (function() {
-        var l = window.location;
-        if (l.search && l.search.startsWith("?/")) {
-          var path = l.search.slice(2).split("&").map(function(s) {
-            return s.replace(/~and~/g, "&");
-          }).join("?");
-          window.history.replaceState(null, null, l.pathname.replace(/\/$/, "") + "/" + path + l.hash);
+        'use strict';
+        
+        var loc = window.location;
+        var repoName = 'Reyan_Luxe';
+        
+        // Check if this is a redirect from 404.html
+        if (loc.search && loc.search.startsWith('?/')) {
+          // Extract the path from the query string
+          var path = loc.search.slice(2); // Remove '?/'
+          
+          // Clean up any ~and~ encoding
+          path = path.replace(/~and~/g, '&');
+          
+          // Build the clean URL
+          var cleanUrl = '/' + repoName + '/' + path;
+          
+          // Replace the current URL without triggering a page reload
+          window.history.replaceState(null, null, cleanUrl);
+          
+          console.log('GitHub Pages redirect cleaned:', loc.search, '->', cleanUrl);
+        }
+        
+        // Additional check for infinite redirect loops
+        if (loc.search && loc.search.length > 100) {
+          // If query string is too long, likely in redirect loop
+          console.log('Detected potential redirect loop, cleaning URL');
+          window.history.replaceState(null, null, '/' + repoName + '/');
         }
       })();
     </script>
