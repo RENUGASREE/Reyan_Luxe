@@ -21,35 +21,31 @@ export default function HeroSection() {
   const [isFading, setIsFading] = useState(false); // New state to control fade
 
   useEffect(() => {
-    const fetchProductImages = async () => {
-      try {
-        // Check if we're in production (GitHub Pages) or development
-        const isProduction = window.location.hostname !== 'localhost';
-        
-        if (isProduction) {
-          // In production, use fallback images since API won't be available
-          console.log('Production environment detected, using fallback images');
-          setProductImages(slideshowImages);
-          return;
+    // Always use slideshow images for GitHub Pages deployment
+    // This ensures the hero section works without any API dependencies
+    console.log('Using fallback slideshow images for hero section');
+    setProductImages(slideshowImages);
+    
+    // Optional: In development, you can try to fetch real images
+    if (window.location.hostname === 'localhost') {
+      const fetchProductImages = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/bracelets/`);
+          const braceletsRes = response.data as any[];
+          const images = braceletsRes.map((p: any) => p.imageUrl).filter(Boolean);
+          
+          if (images.length > 0) {
+            setProductImages(images);
+          }
+        } catch (error) {
+          console.log('API not available, using fallback images');
+          // Keep the slideshow images as fallback
         }
-
-        const response = await axios.get(`${API_BASE_URL}/api/bracelets/`);
-        const braceletsRes = response.data as any[];
-
-        const images = braceletsRes.map((p: any) => p.imageUrl).filter(Boolean);
-
-        if (images.length > 0) {
-          setProductImages(images);
-        } else {
-          setProductImages(slideshowImages); // Fallback to dummy images if no products are found
-        }
-      } catch (error) {
-        console.error("Error fetching product images:", error);
-        setProductImages(slideshowImages); // Fallback to dummy images on error
-      }
-    };
-
-    fetchProductImages();
+      };
+      
+      // Only try API in development
+      fetchProductImages();
+    }
   }, []);
 
   // Preload images
