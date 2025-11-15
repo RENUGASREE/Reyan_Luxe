@@ -33,9 +33,14 @@ class BraceletSerializer(serializers.ModelSerializer):
         ]
 
     def get_imageUrl(self, obj):
-        # Prefer the uploaded image URL if present, otherwise fall back to stored imageUrl
         try:
             if obj.image:
+                try:
+                    name = str(obj.image)
+                except Exception:
+                    name = None
+                if name and name.startswith('http'):
+                    return name
                 return obj.image.url
         except Exception:
             pass
@@ -88,6 +93,12 @@ class ChainSerializer(serializers.ModelSerializer):
     def get_imageUrl(self, obj):
         try:
             if obj.image:
+                try:
+                    name = str(obj.image)
+                except Exception:
+                    name = None
+                if name and name.startswith('http'):
+                    return name
                 return obj.image.url
         except Exception:
             pass

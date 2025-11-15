@@ -71,69 +71,6 @@ export default function Products() {
   ];
 
   useEffect(() => {
-    const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
-
-    if (isProd) {
-      const fallbackProducts = [
-        {
-          id: "bracelet-101",
-          api_id: 101,
-          name: "Aurora Gold Bracelet",
-          description: "Elegant gold bracelet with minimalist design",
-          price: "3999",
-          imageUrl: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=1200&q=60",
-          is_signature_piece: true,
-          signature_category: "fashion",
-          category: "Bracelet",
-          category_slug: "gold_bracelets",
-          category_name: "Gold Bracelets",
-        },
-        {
-          id: "bracelet-102",
-          api_id: 102,
-          name: "Crystal Luxe Bracelet",
-          description: "Handmade crystal bracelet for refined style",
-          price: "2999",
-          imageUrl: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=60",
-          is_signature_piece: true,
-          signature_category: "trending",
-          category: "Bracelet",
-          category_slug: "crystal_bracelets",
-          category_name: "Crystal Bracelets",
-        },
-        {
-          id: "chain-201",
-          api_id: 201,
-          name: "Rope Chain Necklace",
-          description: "Classic rope chain with polished finish",
-          price: "4999",
-          imageUrl: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=60",
-          is_signature_piece: false,
-          signature_category: null,
-          category: "Chain",
-          category_slug: "rope_chain",
-          category_name: "Rope Chain",
-        },
-        {
-          id: "chain-202",
-          api_id: 202,
-          name: "Figaro Chain Necklace",
-          description: "Premium figaro chain for everyday wear",
-          price: "4599",
-          imageUrl: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=60",
-          is_signature_piece: false,
-          signature_category: null,
-          category: "Chain",
-          category_slug: "figaro_chain",
-          category_name: "Figaro Chain",
-        },
-      ];
-
-      setAllProducts(fallbackProducts);
-      setLoading(false);
-      return;
-    }
-
     const fetchProducts = async () => {
       try {
         const braceletsRes = await axios.get(`${API_BASE_URL}/api/bracelets/`);
@@ -162,29 +99,147 @@ export default function Products() {
         setAllProducts([...fetchedBracelets, ...fetchedChains]);
       } catch (err) {
         setError(err);
+        const fallbackProducts = [
+          {
+            id: "bracelet-101",
+            api_id: 101,
+            name: "Aurora Gold Bracelet",
+            description: "Elegant gold bracelet with minimalist design",
+            price: "3999",
+            imageUrl: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: true,
+            signature_category: "fashion",
+            category: "Bracelet",
+            category_slug: "gold_bracelets",
+            category_name: "Gold Bracelets",
+          },
+          {
+            id: "bracelet-102",
+            api_id: 102,
+            name: "Crystal Luxe Bracelet",
+            description: "Handmade crystal bracelet for refined style",
+            price: "2999",
+            imageUrl: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: true,
+            signature_category: "trending",
+            category: "Bracelet",
+            category_slug: "crystal_bracelets",
+            category_name: "Crystal Bracelets",
+          },
+          {
+            id: "chain-201",
+            api_id: 201,
+            name: "Rope Chain Necklace",
+            description: "Classic rope chain with polished finish",
+            price: "4999",
+            imageUrl: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: false,
+            signature_category: null,
+            category: "Chain",
+            category_slug: "rope_chain",
+            category_name: "Rope Chain",
+          },
+          {
+            id: "chain-202",
+            api_id: 202,
+            name: "Figaro Chain Necklace",
+            description: "Premium figaro chain for everyday wear",
+            price: "4599",
+            imageUrl: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: false,
+            signature_category: null,
+            category: "Chain",
+            category_slug: "figaro_chain",
+            category_name: "Figaro Chain",
+          },
+          {
+            id: "bracelet-103",
+            api_id: 103,
+            name: "Galaxy Charm Bracelet",
+            description: "Celestial charm bracelet with star accents",
+            price: "3499",
+            imageUrl: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: true,
+            signature_category: "fashion",
+            category: "Bracelet",
+            category_slug: "charm_bracelets",
+            category_name: "Charm Bracelets",
+          },
+          {
+            id: "bracelet-104",
+            api_id: 104,
+            name: "Couple Minimalist Bracelets",
+            description: "Matching minimalist bracelets for couples",
+            price: "3999",
+            imageUrl: "https://images.unsplash.com/photo-1523294575204-2b6c2a49f9b2?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: true,
+            signature_category: "trending",
+            category: "Bracelet",
+            category_slug: "couple_bracelets",
+            category_name: "Couple Bracelets",
+          },
+          {
+            id: "bracelet-105",
+            api_id: 105,
+            name: "Handmade Gemstone Bracelet",
+            description: "Artisan bracelet with onyx and crystal gems",
+            price: "3299",
+            imageUrl: "https://images.unsplash.com/photo-1608041789771-3c0a3f1a371f?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: false,
+            signature_category: null,
+            category: "Bracelet",
+            category_slug: "gemstone_bracelets",
+            category_name: "Gemstone Bracelets",
+          },
+          {
+            id: "chain-203",
+            api_id: 203,
+            name: "Cuban Chain Necklace",
+            description: "Bold cuban chain with premium finish",
+            price: "5599",
+            imageUrl: "https://images.unsplash.com/photo-1543294001-f7cd6f3e62b0?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: false,
+            signature_category: null,
+            category: "Chain",
+            category_slug: "cuban_chain",
+            category_name: "Cuban Chain",
+          },
+          {
+            id: "chain-204",
+            api_id: 204,
+            name: "Classic Gold Chain",
+            description: "Timeless gold chain for everyday elegance",
+            price: "6499",
+            imageUrl: "https://images.unsplash.com/photo-1622062492192-0eafc2238ed6?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: false,
+            signature_category: null,
+            category: "Chain",
+            category_slug: "gold_chain",
+            category_name: "Gold Chain",
+          },
+          {
+            id: "bracelet-106",
+            api_id: 106,
+            name: "Onyx Signature Bracelet",
+            description: "Latest signature onyx bracelet with matte beads",
+            price: "3799",
+            imageUrl: "https://images.unsplash.com/photo-1522312340740-496f6d136cc3?auto=format&fit=crop&w=1200&q=60",
+            is_signature_piece: true,
+            signature_category: "latest",
+            category: "Bracelet",
+            category_slug: "fashion_bracelets",
+            category_name: "Fashion Bracelets",
+          },
+        ];
+        setAllProducts(fallbackProducts);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [filterCategory]);
 
   useEffect(() => {
-    const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
-    if (isProd) {
-      setBraceletCategories([
-        { slug: "gold_bracelets", name: "Gold Bracelets" },
-        { slug: "crystal_bracelets", name: "Crystal Bracelets" },
-        { slug: "fashion_bracelets", name: "Fashion Bracelets" },
-      ] as any);
-      setChainCategories([
-        { slug: "rope_chain", name: "Rope Chain" },
-        { slug: "figaro_chain", name: "Figaro Chain" },
-      ] as any);
-      return;
-    }
-
     const fetchCategories = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/categories/`);
@@ -199,6 +254,20 @@ export default function Products() {
         setChainCategories(chainCats);
       } catch (err) {
         console.error("Failed to fetch categories", err);
+        setBraceletCategories([
+          { slug: "gold_bracelets", name: "Gold Bracelets" },
+          { slug: "crystal_bracelets", name: "Crystal Bracelets" },
+          { slug: "fashion_bracelets", name: "Fashion Bracelets" },
+          { slug: "charm_bracelets", name: "Charm Bracelets" },
+          { slug: "couple_bracelets", name: "Couple Bracelets" },
+          { slug: "gemstone_bracelets", name: "Gemstone Bracelets" },
+        ] as any);
+        setChainCategories([
+          { slug: "rope_chain", name: "Rope Chain" },
+          { slug: "figaro_chain", name: "Figaro Chain" },
+          { slug: "cuban_chain", name: "Cuban Chain" },
+          { slug: "gold_chain", name: "Gold Chain" },
+        ] as any);
       }
     };
     fetchCategories();

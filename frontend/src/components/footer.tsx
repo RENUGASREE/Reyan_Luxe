@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { API_BASE_URL } from "@/lib/queryClient";
 
 export default function Footer() {
   return (
@@ -18,6 +20,18 @@ export default function Footer() {
         <p className="text-background/70 mb-4" data-testid="footer-tagline">
           Refined Adornment. Uncompromising Elegance.
         </p>
+        <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm">
+          <Link to="/" className="text-primary hover:underline">Home</Link>
+          <Link to="/about" className="text-primary hover:underline">About</Link>
+          <Link to="/products" className="text-primary hover:underline">Products</Link>
+          <Link to="/contact" className="text-primary hover:underline">Contact</Link>
+          <Link to="/cart" className="text-primary hover:underline">Cart</Link>
+          <Link to="/wishlist" className="text-primary hover:underline">Wishlist</Link>
+          <Link to="/login" className="text-primary hover:underline">Login</Link>
+          <Link to="/register" className="text-primary hover:underline">Register</Link>
+          <Link to="/customize/bracelet" className="text-primary hover:underline">Customize</Link>
+          <a href={`${API_BASE_URL}/admin/`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Admin</a>
+        </div>
         <p className="text-background/50 text-sm" data-testid="footer-copyright">
           © 2024 Reyan Luxe. All rights reserved.
         </p>

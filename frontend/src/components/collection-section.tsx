@@ -44,22 +44,64 @@ export default function CollectionSection() {
   const dynamicFilters: string[] = ["all", "fashion_bracelets", "trending_bracelets", "latest_bracelet"]; // Fixed filters
 
   useEffect(() => {
-    const fetchBracelets = async () => {
+    const fetch = async () => {
       try {
         const response = await axios.get<BraceletCard[]>(
-          `${API_BASE_URL}/api/bracelets/`,
-          { params: { category: activeFilter !== "all" ? activeFilter : undefined } }
-        );
+        `${API_BASE_URL}/api/bracelets/`,
+        { params: { category: activeFilter !== "all" ? activeFilter : undefined } }
+      );
         setBracelets(response.data);
+        setLoading(false);
+        return;
       } catch (err) {
         setError("Failed to fetch bracelets.");
         console.error(err);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchBracelets();
+    const backendUrl = API_BASE_URL;
+    const hasRealBackend = typeof backendUrl === "string" && !backendUrl.includes("localhost");
+    if (!hasRealBackend) {
+      const fallback: BraceletCard[] = [
+        {
+          id: 1001,
+          name: "Aurora Gold Bracelet",
+          description: "Elegant gold bracelet with minimalist design",
+          price: 3999,
+          imageUrl: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=1200&q=60",
+          category: "fashion_bracelets",
+          icon: "Star",
+          badge: "Best Seller",
+          is_signature_piece: true,
+        },
+        {
+          id: 1002,
+          name: "Crystal Luxe Bracelet",
+          description: "Handmade crystal bracelet for refined style",
+          price: 2999,
+          imageUrl: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=60",
+          category: "trending_bracelets",
+          icon: "Gem",
+          badge: "Trending",
+          is_signature_piece: true,
+        },
+        {
+          id: 1003,
+          name: "Onyx Signature Bracelet",
+          description: "Latest signature onyx bracelet with matte beads",
+          price: 3799,
+          imageUrl: "https://images.unsplash.com/photo-1522312340740-496f6d136cc3?auto=format&fit=crop&w=1200&q=60",
+          category: "latest_bracelet",
+          icon: "Moon",
+          badge: "Latest",
+          is_signature_piece: true,
+        },
+      ];
+      setBracelets(fallback);
+      setLoading(false);
+      return;
+    }
+    fetch();
   }, [activeFilter]);
 
   const filteredBracelets = bracelets.filter((bracelet) =>

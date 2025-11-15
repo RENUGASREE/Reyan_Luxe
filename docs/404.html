@@ -10,39 +10,29 @@
       
       (function() {
         'use strict';
-        
-        // Get the current location
         var loc = window.location;
         var repoName = 'Reyan_Luxe';
-        
-        // Check if we're already in a redirect to prevent infinite loops
-        if (loc.search && loc.search.indexOf('?/~and~/') !== -1) {
-          // We're in an infinite redirect loop, go to homepage
-          window.location.replace('/' + repoName + '/');
+        var basePath = '/' + repoName + '/';
+        var isMobile = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
+        var search = loc.search || '';
+        if (search.startsWith('?/')) {
+          window.location.replace(basePath);
           return;
         }
-        
-        // Get the path after the repository name
+        if (search.length > (isMobile ? 60 : 100)) {
+          window.location.replace(basePath);
+          return;
+        }
         var path = loc.pathname;
-        var basePath = '/' + repoName + '/';
-        
-        // Extract the route part
-        var route = path.replace(basePath, '');
-        
-        // Build the redirect URL
+        var route = path.indexOf(basePath) === 0 ? path.slice(basePath.length) : path;
+        route = route.replace(/^\/+/, '');
         var redirectUrl = loc.protocol + '//' + loc.hostname + (loc.port ? ':' + loc.port : '') + basePath;
-        
-        // If there's a route, add it as a query parameter
         if (route && route !== '/') {
           redirectUrl += '?/' + route;
         }
-        
-        // Add hash if it exists
         if (loc.hash) {
           redirectUrl += loc.hash;
         }
-        
-        console.log('GitHub Pages 404 redirect:', path, '->', redirectUrl);
         window.location.replace(redirectUrl);
       })();
     </script>

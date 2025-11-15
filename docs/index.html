@@ -13,37 +13,25 @@
   <body>
     <div id="root"></div>
     
-    <!-- GitHub Pages SPA redirect handler - Fixed Version -->
     <script>
-      // Handle redirects from 404.html and clean up URLs
       (function() {
         'use strict';
-        
         var loc = window.location;
         var repoName = 'Reyan_Luxe';
-        
-        // Check if this is a redirect from 404.html
-        if (loc.search && loc.search.startsWith('?/')) {
-          // Extract the path from the query string
-          var path = loc.search.slice(2); // Remove '?/'
-          
-          // Clean up any ~and~ encoding
-          path = path.replace(/~and~/g, '&');
-          
-          // Build the clean URL
-          var cleanUrl = '/' + repoName + '/' + path;
-          
-          // Replace the current URL without triggering a page reload
+        var basePath = '/' + repoName + '/';
+        var isMobile = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
+        var search = loc.search || '';
+        if (search && search.startsWith('?/')) {
+          var path = search.slice(2).replace(/~and~/g, '&');
+          if (path.length > (isMobile ? 60 : 120)) {
+            window.history.replaceState(null, null, basePath);
+            return;
+          }
+          var cleanUrl = basePath + path;
           window.history.replaceState(null, null, cleanUrl);
-          
-          console.log('GitHub Pages redirect cleaned:', loc.search, '->', cleanUrl);
         }
-        
-        // Additional check for infinite redirect loops
-        if (loc.search && loc.search.length > 100) {
-          // If query string is too long, likely in redirect loop
-          console.log('Detected potential redirect loop, cleaning URL');
-          window.history.replaceState(null, null, '/' + repoName + '/');
+        if (search && search.length > (isMobile ? 60 : 120)) {
+          window.history.replaceState(null, null, basePath);
         }
       })();
     </script>
