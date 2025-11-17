@@ -29,6 +29,7 @@ class BraceletViewSet(viewsets.ModelViewSet):
     queryset = Bracelet.objects.all()
     serializer_class = BraceletSerializer
     permission_classes = [AllowAny]
+    filterset_fields = ['is_signature_piece', 'category', 'signature_category']
 
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

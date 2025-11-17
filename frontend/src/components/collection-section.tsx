@@ -16,6 +16,7 @@ interface BraceletCard {
   icon: string;
   badge: string;
   is_signature_piece: boolean;
+  signature_category: string;
 }
 
 const iconMap: { [key: string]: typeof Gem } = {
@@ -41,14 +42,14 @@ export default function CollectionSection() {
   const [bracelets, setBracelets] = useState<BraceletCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const dynamicFilters: string[] = ["all", "fashion_bracelets", "trending_bracelets", "latest_bracelet"]; // Fixed filters
+  const dynamicFilters: string[] = ["all"]; // Only show all signature pieces for now
 
   useEffect(() => {
     const fetch = async () => {
       try {
         const response = await axios.get<BraceletCard[]>(
         `${API_BASE_URL}/api/bracelets/`,
-        { params: { category: activeFilter !== "all" ? activeFilter : undefined } }
+        { params: { is_signature_piece: true } }
       );
         setBracelets(response.data);
         setLoading(false);
@@ -102,10 +103,10 @@ export default function CollectionSection() {
       return;
     }
     fetch();
-  }, [activeFilter]);
+  }, []);
 
   const filteredBracelets = bracelets.filter((bracelet) =>
-    activeFilter === "all" || bracelet.category === activeFilter
+    bracelet.is_signature_piece === true
   );
 
   if (loading) {
