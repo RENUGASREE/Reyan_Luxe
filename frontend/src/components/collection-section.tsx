@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ResponsiveContainer } from "@/components/responsive-utils";
 import axios from "axios";
 import { API_BASE_URL } from "@/lib/queryClient";
+import { useNavigate } from "react-router-dom";
 
 interface BraceletCard {
   id: number;
@@ -42,75 +43,51 @@ export default function CollectionSection() {
   const [bracelets, setBracelets] = useState<BraceletCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const dynamicFilters: string[] = ["all"]; // Only show all signature pieces for now
+  const dynamicFilters: string[] = ["all", "trending", "none"]; // Show actual signature categories based on data
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const response = await axios.get<BraceletCard[]>(
-        `${API_BASE_URL}/api/bracelets/`,
-        { params: { is_signature_piece: true } }
-      );
-        setBracelets(response.data);
+        // Fetch both bracelets and chains that are signature pieces
+        const [braceletsResponse, chainsResponse] = await Promise.all([
+          axios.get<BraceletCard[]>(`${API_BASE_URL}/api/bracelets/`, {
+            params: { is_signature_piece: true }
+          }),
+          axios.get<BraceletCard[]>(`${API_BASE_URL}/api/chains/`, {
+            params: { is_signature_piece: true }
+          })
+        ]);
+        
+        // Combine and map the data
+        const bracelets = braceletsResponse.data.map(item => ({
+          ...item,
+          product_type: 'bracelet'
+        }));
+        const chains = chainsResponse.data.map(item => ({
+          ...item,
+          product_type: 'chain'
+        }));
+        
+        setBracelets([...bracelets, ...chains]);
         setLoading(false);
-        return;
       } catch (err) {
-        setError("Failed to fetch bracelets.");
+        setError("Failed to fetch signature pieces.");
         console.error(err);
+        setLoading(false);
       }
     };
 
-    const backendUrl = API_BASE_URL;
-    const hasRealBackend = typeof backendUrl === "string" && !backendUrl.includes("localhost");
-    if (!hasRealBackend) {
-      const fallback: BraceletCard[] = [
-        {
-          id: 1001,
-          name: "Aurora Gold Bracelet",
-          description: "Elegant gold bracelet with minimalist design",
-          price: 3999,
-          imageUrl: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=1200&q=60",
-          category: "fashion_bracelets",
-          icon: "Star",
-          badge: "Best Seller",
-          is_signature_piece: true,
-        },
-        {
-          id: 1002,
-          name: "Crystal Luxe Bracelet",
-          description: "Handmade crystal bracelet for refined style",
-          price: 2999,
-          imageUrl: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=60",
-          category: "trending_bracelets",
-          icon: "Gem",
-          badge: "Trending",
-          is_signature_piece: true,
-        },
-        {
-          id: 1003,
-          name: "Onyx Signature Bracelet",
-          description: "Latest signature onyx bracelet with matte beads",
-          price: 3799,
-          imageUrl: "https://images.unsplash.com/photo-1522312340740-496f6d136cc3?auto=format&fit=crop&w=1200&q=60",
-          category: "latest_bracelet",
-          icon: "Moon",
-          badge: "Latest",
-          is_signature_piece: true,
-        },
-      ];
-      setBracelets(fallback);
-      setLoading(false);
-      return;
-    }
     fetch();
   }, []);
 
-  const filteredBracelets = bracelets.filter((bracelet) =>
-    bracelet.is_signature_piece === true
-  );
+  const filteredBracelets = bracelets.filter((bracelet) => {
+    if (activeFilter === "all") return bracelet.is_signature_piece === true;
+    return bracelet.is_signature_piece === true && (bracelet.signature_category === activeFilter || (bracelet.signature_category === null && activeFilter === "none"));
+  });
 
   if (loading) {
-    return <div className="text-center py-20">Loading bracelets...</div>;
+    return <div className="text-center py-20">Loading favorites...</div>;
   }
 
   if (error) {
@@ -132,11 +109,10 @@ export default function CollectionSection() {
             className="text-4xl md:text-5xl font-playfair font-bold text-foreground mb-4"
             data-testid="collection-title"
           >
-            Our Signature Pieces
+            Customer Favorites
           </h2>
           <p className="text-background/70 text-lg max-w-2xl mx-auto">
-            Each bracelet is meticulously handcrafted, embodying our commitment
-            to luxury and artisanal excellence.
+            Discover our most loved pieces, carefully selected by our customers for their exceptional craftsmanship and timeless elegance.
           </p>
         </motion.div>
 
@@ -173,13 +149,14 @@ export default function CollectionSection() {
           {filteredBracelets.map((bracelet, index) => (
             <motion.div
               key={bracelet.id}
-              className="card-hover bg-card rounded-lg overflow-hidden relative group"
+              className="card-hover bg-card rounded-lg overflow-hidden relative group cursor-pointer"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               layout
               data-testid={`bracelet-card-${bracelet.id}`}
+              onClick={() => navigate(`/product/${bracelet.id}`)}
             >
               <div className="relative overflow-hidden">
                 <img
@@ -195,28 +172,32 @@ export default function CollectionSection() {
 
               <div className="p-6">
                 <h3
-                  className="text-xl font-playfair font-bold text-card-foreground mb-2"
+                  className="text-xl font-playfair font-bold text-card-foreground mb-2 cursor-pointer hover:text-primary transition-colors"
                   data-testid={`bracelet-name-${bracelet.id}`}
+                  onClick={(e) => { e.stopPropagation(); navigate(`/product/${bracelet.id}`); }}
                 >
                   {bracelet.name}
                 </h3>
                 <p
-                  className="text-card-foreground/70 mb-4"
+                  className="text-card-foreground/70 mb-4 cursor-pointer"
                   data-testid={`bracelet-description-${bracelet.id}`}
+                  onClick={(e) => { e.stopPropagation(); navigate(`/product/${bracelet.id}`); }}
                 >
                   {bracelet.description}
                 </p>
                 <div className="flex justify-between items-center">
                   <span
-                    className="text-primary font-bold text-lg"
+                    className="text-primary font-bold text-lg cursor-pointer"
                     data-testid={`bracelet-price-${bracelet.id}`}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/product/${bracelet.id}`); }}
                   >
                     <p className="text-lg font-semibold mt-2">₹{bracelet.price}</p>
                   </span>
                   <motion.div
-                    className="rotate-charm"
+                    className="rotate-charm cursor-pointer"
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.6 }}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/product/${bracelet.id}`); }}
                   >
                     {iconMap[bracelet.icon] &&
                       React.createElement(iconMap[bracelet.icon], {

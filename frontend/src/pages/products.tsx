@@ -15,7 +15,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Footer from "@/components/footer";
 import { SEO } from "@/components/SEO";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Heart } from "lucide-react";
 
 const formatCategoryName = (slugOrCategory, categoryName) => {
   if (categoryName) return categoryName;
@@ -38,7 +39,10 @@ export default function Products() {
   // const [categories, setCategories] = useState([]);
   const [braceletCategories, setBraceletCategories] = useState([]);
   const [chainCategories, setChainCategories] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // const braceletSubcategories = [
   //   { value: "all_bracelets", label: "All Bracelets" },
@@ -65,16 +69,142 @@ export default function Products() {
 
   const signatureSubcategories = [
     { value: "signature_all", label: "All" },
-    { value: "signature_fashion", label: "Fashion Bracelets" },
-    { value: "signature_trending", label: "Trending Bracelets" },
-    { value: "signature_latest", label: "Latest Bracelet" },
+    { value: "signature_trending", label: "Trending" },
+    { value: "signature_none", label: "General" },
   ];
+
+  // Handle URL parameters for filtering
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const filterParam = params.get('filter');
+    if (filterParam === 'signature') {
+      setFilterCategory('signature');
+      setFilterLabel('Customer Favorites');
+    }
+  }, [location.search]);
+
+  // Fetch wishlist items
+  const fetchWishlist = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        const res = await axios.get(`${API_BASE_URL}/api/wishlist/`, {
+          headers: { Authorization: `Token ${token}` },
+        });
+        setWishlistItems(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch wishlist:', error);
+    }
+  };
+
+  // Add to wishlist
+  const addToWishlist = async (productId, productType) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/api/wishlist/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          product_type: productType,
+        }),
+      });
+
+      if (response.ok) {
+        fetchWishlist(); // Refresh wishlist
+      } else {
+        console.error('Wishlist error:', await response.text());
+      }
+    } catch (error) {
+      console.error('Failed to add to wishlist:', error);
+    }
+  };
+
+  // Remove from wishlist
+  const removeFromWishlist = async (wishlistId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        await axios.delete(`${API_BASE_URL}/api/wishlist/${wishlistId}/`, {
+          headers: { Authorization: `Token ${token}` },
+        });
+        fetchWishlist(); // Refresh wishlist
+      }
+    } catch (error) {
+      console.error('Failed to remove from wishlist:', error);
+    }
+  };
+
+  // Check if product is in wishlist
+  const isInWishlist = (productId, productType) => {
+    return wishlistItems.some(item => 
+      item.product_id === productId && item.product_type === productType
+    );
+  };
+
+  // Get wishlist ID for a product
+  const getWishlistId = (productId, productType) => {
+    const item = wishlistItems.find(item => 
+      item.product_id === productId && item.product_type === productType
+    );
+    return item ? item.id : null;
+  };
+
+  // Add to cart
+  const addToCart = async (productId, productType, productName, productPrice, productImage) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      
+      // Use the same format as the existing cart functionality
+      const response = await fetch(`${API_BASE_URL}/api/cart-items/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
+        body: JSON.stringify({
+          product_id: `${productType}-${productId}`,
+          name: productName,
+          price: productPrice,
+          quantity: 1,
+          image_url: productImage,
+        }),
+      });
+
+      if (response.ok) {
+        alert('Item added to cart!');
+      } else {
+        const errorData = await response.json();
+        console.error('Cart error:', errorData);
+        alert('Failed to add to cart. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      alert('Failed to add to cart. Please try again.');
+    }
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        console.log("Fetching products from API:", API_BASE_URL);
         const braceletsRes = await axios.get(`${API_BASE_URL}/api/bracelets/`);
+        console.log("Bracelets fetched successfully:", braceletsRes.data.length);
         const chainsRes = await axios.get(`${API_BASE_URL}/api/chains/`);
+        console.log("Chains fetched successfully:", chainsRes.data.length);
 
         const fetchedBracelets = (braceletsRes.data as any[]).map((p) => ({
           ...p,
@@ -98,6 +228,7 @@ export default function Products() {
 
         setAllProducts([...fetchedBracelets, ...fetchedChains]);
       } catch (err) {
+        console.error("Error fetching products:", err);
         setError(err);
         const fallbackProducts = [
           {
@@ -240,6 +371,8 @@ export default function Products() {
   }, [filterCategory]);
 
   useEffect(() => {
+    fetchWishlist(); // Fetch wishlist items when component loads
+    
     const fetchCategories = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/categories/`);
@@ -316,6 +449,8 @@ export default function Products() {
         return product.is_signature_piece === true && product.signature_category === "trending";
       case "signature_latest":
         return product.is_signature_piece === true && product.signature_category === "latest";
+      case "signature_none":
+        return product.is_signature_piece === true && (product.signature_category === null || product.signature_category === "");
       default:
         return true;
     }
@@ -347,6 +482,34 @@ export default function Products() {
       .includes(searchTerm.toLowerCase());
     return matchesSearch && matchesCategory(product);
   });
+
+  // Debug: Log products being displayed
+  useEffect(() => {
+    console.log(`Total products: ${allProducts.length}, Filtered products: ${filteredProducts.length}`);
+    console.log("All products summary:", filteredProducts.map(p => ({id: p.id, api_id: p.api_id, name: p.name, price: p.price, category: p.category})));
+    
+    // Check for duplicates by ID
+    const ids = filteredProducts.map(p => p.id);
+    const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+    if (duplicates.length > 0) {
+      console.log("Duplicate IDs found:", duplicates);
+    } else {
+      console.log("No duplicate IDs found - all products are unique");
+    }
+    
+    // Group by name to see if there are name duplicates
+    const nameGroups = filteredProducts.reduce((acc, product) => {
+      const name = product.name;
+      if (!acc[name]) acc[name] = [];
+      acc[name].push(product);
+      return acc;
+    }, {});
+    
+    const nameDuplicates = Object.entries(nameGroups).filter(([name, products]) => products.length > 1);
+    if (nameDuplicates.length > 0) {
+      console.log("Products with duplicate names:", nameDuplicates);
+    }
+  }, [allProducts, filteredProducts]);
 
   if (loading) return <div className="text-center text-xl mt-10">Loading products...</div>;
   if (error) return <div className="text-center text-xl mt-10 text-red-500">Error: {error.message}</div>;
@@ -424,25 +587,62 @@ export default function Products() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <Card key={product.id} className="flex flex-col">
-              <CardHeader>
-                <img
-                  src={product.imageUrl}
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
-                <CardTitle>{product.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow flex flex-col justify-between">
-                <p className="text-lg font-semibold mb-2">₹{product.price}</p>
-                <p className="text-sm text-muted-foreground">
-                  Category: {formatCategoryName(product.category, product.category_name)}
-                </p>
-                <Button className="mt-4 w-full" onClick={() => navigate(`/product/${product.api_id}`)}>View Details</Button>
-              </CardContent>
-            </Card>
-          ))}
+          {filteredProducts.map((product) => {
+            const productType = product.id.startsWith('bracelet') ? 'bracelet' : 'chain';
+            const inWishlist = isInWishlist(product.api_id, productType);
+            const wishlistId = inWishlist ? getWishlistId(product.api_id, productType) : null;
+            
+            return (
+              <Card key={product.id} className="flex flex-col">
+                {/* Debug info */}
+                <div className="hidden debug-info" data-product-id={product.id} data-product-name={product.name}>
+                  ID: {product.id}, API_ID: {product.api_id}, Name: {product.name}
+                </div>
+                <CardHeader className="relative">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="w-full h-48 object-cover rounded-md mb-4"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                    onClick={() => {
+                      if (inWishlist) {
+                        removeFromWishlist(wishlistId);
+                      } else {
+                        addToWishlist(product.api_id, productType);
+                      }
+                    }}
+                  >
+                    <Heart className={`h-5 w-5 ${inWishlist ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
+                  </Button>
+                  <CardTitle>{product.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow flex flex-col justify-between">
+                  <p className="text-lg font-semibold mb-2">₹{product.price}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Category: {formatCategoryName(product.category, product.category_name)}
+                  </p>
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      className="flex-1" 
+                      onClick={() => navigate(`/product/${product.api_id}`)}
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => addToCart(product.api_id, productType, product.name, product.price, product.imageUrl)}
+                    >
+                      Add to Cart
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
         {filteredProducts.length === 0 && !loading && (
           <p className="text-center text-xl mt-10">No products found.</p>

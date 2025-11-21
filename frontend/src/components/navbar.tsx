@@ -37,7 +37,6 @@ export default function Navbar() {
     { label: "About", path: "/about" },
     { label: "Contact", path: "/contact" },
     { label: "Cart", path: "/cart" },
-    { label: "Admin", path: "/admin" },
   ] as const;
 
   const authNavItems = user

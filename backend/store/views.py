@@ -279,7 +279,12 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class ProductReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ProductReviewSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        """Allow anyone to read reviews, but require authentication to write."""
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAuthenticated()]
 
     def get_queryset(self):
         product_type = self.request.query_params.get('product_type')

@@ -139,6 +139,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = "__all__"
+        read_only_fields = ['user']
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -183,7 +184,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_name', 'product_type', 'product_id', 'rating',
             'title', 'comment', 'is_verified_purchase', 'created_at', 'is_approved'
         ]
-        read_only_fields = ['created_at', 'is_approved']
+        read_only_fields = ['created_at', 'is_approved', 'user']
     
     def get_user_name(self, obj):
         return obj.user.username if obj.user.username else obj.user.email.split('@')[0]
@@ -192,7 +193,8 @@ class ProductReviewSerializer(serializers.ModelSerializer):
 class WishlistItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = WishlistItem
-        fields = '__all__'
+        fields = "__all__"
+        read_only_fields = ['user']
 
 
 class CustomAuthTokenSerializer(serializers.Serializer):
