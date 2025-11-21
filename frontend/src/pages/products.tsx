@@ -1,4 +1,18 @@
 import { useState, useEffect } from "react";
+
+interface Product {
+  id: string;
+  api_id: number;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  is_signature_piece: boolean;
+  category: string;
+  signature_category: string | null;
+  category_slug: string | null;
+  category_name: string | null;
+}
 import axios from "axios";
 import { API_BASE_URL } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
@@ -498,14 +512,14 @@ export default function Products() {
     }
     
     // Group by name to see if there are name duplicates
-    const nameGroups = filteredProducts.reduce((acc, product) => {
+    const nameGroups = filteredProducts.reduce((acc: Record<string, Product[]>, product: Product) => {
       const name = product.name;
       if (!acc[name]) acc[name] = [];
       acc[name].push(product);
       return acc;
     }, {});
     
-    const nameDuplicates = Object.entries(nameGroups).filter(([name, products]) => products.length > 1);
+    const nameDuplicates = Object.entries(nameGroups).filter(([name, products]: [string, Product[]]) => products.length > 1);
     if (nameDuplicates.length > 0) {
       console.log("Products with duplicate names:", nameDuplicates);
     }
