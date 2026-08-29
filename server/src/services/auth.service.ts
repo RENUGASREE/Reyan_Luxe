@@ -143,7 +143,7 @@ export async function forgotPassword(email: string): Promise<void> {
   user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
   await user.save();
 
-  const basePath = env.FRONTEND_BASE_PATH.replace(/\/$/, "");
+  const basePath = (env.FRONTEND_BASE_PATH || "/").replace(/\/$/, "");
   const resetUrl = `${env.FRONTEND_URL}${basePath}/reset-password?token=${resetToken}`;
 
   await sendPasswordResetEmail(user.email, resetUrl);

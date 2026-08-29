@@ -9,7 +9,7 @@ dotenv.config();
 async function seedAdmin() {
   await connectDatabase();
 
-  const email = env.ADMIN_SEED_EMAIL.toLowerCase();
+  const email = (env.ADMIN_SEED_EMAIL || "admin@reyanluxe.com").toLowerCase();
   const passwordHash = await hashPassword(env.ADMIN_SEED_PASSWORD);
 
   const user = await User.findOneAndUpdate(

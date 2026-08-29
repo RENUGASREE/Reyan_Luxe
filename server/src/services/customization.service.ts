@@ -1,4 +1,4 @@
-import { Category } from "../models/Category.js";
+import { Category, ICustomizationField } from "../models/Category.js";
 import { CustomizationConfig } from "../models/CustomizationConfig.js";
 import { Product } from "../models/Product.js";
 import { AppError } from "../middleware/errorHandler.js";
@@ -34,7 +34,7 @@ export async function getProductCustomization(productId: string) {
     productId: product._id,
     productName: product.name,
     basePrice: product.salePrice ?? product.price,
-    fields: fields.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
+    fields: fields.sort((a: ICustomizationField, b: ICustomizationField) => (a.sortOrder || 0) - (b.sortOrder || 0)),
     previewLayers: config?.previewLayers || [],
     isCustomizable: product.isCustomizable,
   };
@@ -66,7 +66,7 @@ export async function calculatePrice(productId: string, selections: Record<strin
 
     const values = Array.isArray(value) ? value : [value];
     for (const v of values) {
-      const option = field.options?.find((o) => o.value === v || o.label === v);
+      const option = field.options?.find((o: { value: string; label: string }) => o.value === v || o.label === v);
       if (option) {
         priceModifier += option.priceModifier || 0;
         breakdown.push({
@@ -119,7 +119,7 @@ export async function validateCustomization(productId: string, selections: Recor
     if (selections[field.key]) {
       const values = Array.isArray(selections[field.key]) ? selections[field.key] : [selections[field.key]];
       for (const v of values) {
-        const option = field.options?.find((o) => o.value === v || o.label === v);
+        const option = field.options?.find((o: { value: string; label: string }) => o.value === v || o.label === v);
         if (!option) {
           errors.push(`Invalid option for ${field.label}: ${v}`);
         }
@@ -165,8 +165,8 @@ export async function getCustomizationOptions(productType: string) {
   const fields = config?.fields?.length ? config.fields : category?.customizationFields ?? [];
 
   const materials = fields
-    .find((f) => f.key === "beadColor" || f.key === "stoneColor")
-    ?.options?.map((o, idx) => ({
+    .find((f: ICustomizationField) => f.key === "beadColor" || f.key === "stoneColor")
+    ?.options?.map((o: { value: string; label: string; priceModifier?: number; imageUrl?: string }, idx: number) => ({
       id: idx + 1,
       name: o.label,
       color: o.value.includes("#") ? o.value : `#${o.value.slice(0, 6).padStart(6, "0")}`,
@@ -175,7 +175,7 @@ export async function getCustomizationOptions(productType: string) {
     })) ?? [];
 
   const chainTypes =
-    fields.find((f) => f.key === "metalFinish")?.options?.map((o, idx) => ({
+    fields.find((f: ICustomizationField) => f.key === "metalFinish")?.options?.map((o: { value: string; label: string; priceModifier?: number }, idx: number) => ({
       id: idx + 1,
       name: o.label,
       description: o.label,
@@ -183,7 +183,7 @@ export async function getCustomizationOptions(productType: string) {
     })) ?? [];
 
   const braceletSizes =
-    fields.find((f) => f.key === "braceletSize" || f.key === "size")?.options?.map((o, idx) => ({
+    fields.find((f: ICustomizationField) => f.key === "braceletSize" || f.key === "size")?.options?.map((o: { value: string; label: string; priceModifier?: number }, idx: number) => ({
       id: idx + 1,
       size: o.label,
       length_cm: parseFloat(o.value) || 18,
@@ -191,7 +191,7 @@ export async function getCustomizationOptions(productType: string) {
     })) ?? [];
 
   const charms =
-    fields.find((f) => f.key === "charms")?.options?.map((o, idx) => ({
+    fields.find((f: ICustomizationField) => f.key === "charms")?.options?.map((o: { value: string; label: string; priceModifier?: number; imageUrl?: string }, idx: number) => ({
       id: idx + 1,
       option_type: "charm",
       name: o.label,
