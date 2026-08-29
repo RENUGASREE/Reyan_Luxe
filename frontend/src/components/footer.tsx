@@ -29,7 +29,6 @@ export default function Footer() {
           <Link to="/wishlist" className="text-primary hover:underline">Wishlist</Link>
           <Link to="/login" className="text-primary hover:underline">Login</Link>
           <Link to="/register" className="text-primary hover:underline">Register</Link>
-          <Link to="/customize/bracelet" className="text-primary hover:underline">Customize</Link>
           <a href={`${API_BASE_URL}/admin/`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Admin</a>
         </div>
         <p className="text-background/50 text-sm" data-testid="footer-copyright">

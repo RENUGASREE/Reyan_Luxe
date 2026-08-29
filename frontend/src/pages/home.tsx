@@ -1,7 +1,6 @@
 import HeroSection from "@/components/hero-section";
 import CollectionSection from "@/components/collection-section";
 import AboutSection from "@/components/about-section";
-import ContactSection from "@/components/contact-section";
 import Footer from "@/components/footer";
 import { ScrollReveal } from "@/components/visual-effects";
 import { SEO } from "@/components/SEO";
@@ -26,11 +25,7 @@ export default function Home() {
         <AboutSection />
       </ScrollReveal>
       
-      <ScrollReveal delay={0.3}>
-        <ContactSection />
-      </ScrollReveal>
-      
-      <ScrollReveal direction="up" delay={0.4}>
+      <ScrollReveal direction="up" delay={0.3}>
         <Footer />
       </ScrollReveal>
       </div>

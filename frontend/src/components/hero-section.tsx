@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { API_BASE_URL } from "@/lib/queryClient";
+import { API_BASE_URL, getAssetUrl } from "@/lib/queryClient";
 
 // Define slideshow images
 const slideshowImages = [
@@ -32,7 +32,7 @@ export default function HeroSection() {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/bracelets/`);
           const braceletsRes = response.data as any[];
-          const images = braceletsRes.map((p: any) => p.imageUrl).filter(Boolean);
+          const images = braceletsRes.map((p: any) => getAssetUrl(p.imageUrl)).filter(Boolean);
           
           if (images.length > 0) {
             setProductImages(images);

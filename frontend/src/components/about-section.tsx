@@ -1,11 +1,10 @@
 import { Gem, Hand, Infinity as InfinityIcon } from "lucide-react";
 import { motion } from "framer-motion";
-
-
+import { getAssetUrl } from "@/lib/queryClient";
 
 export default function AboutSection() {
-  const originsImage: string | null = "/placeholders/placeholder.png";
-  const craftsmanshipImage: string | null = "/placeholders/placeholder.png";
+  const originsImage: string | null = getAssetUrl("/placeholders/placeholder.png");
+  const craftsmanshipImage: string | null = getAssetUrl("/placeholders/placeholder.png");
 
   const philosophyItems = [
     {

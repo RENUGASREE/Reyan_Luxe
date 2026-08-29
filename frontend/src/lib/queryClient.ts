@@ -2,6 +2,19 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 export const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:8000";
 
+export function getAssetUrl(path: string | null | undefined): string {
+  if (!path) return `${(import.meta as any).env?.BASE_URL || "/"}placeholders/placeholder.png`;
+  if (path.startsWith("http")) return path;
+  
+  // Remove leading slash if present to avoid double slashes with BASE_URL
+  const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+  
+  // BASE_URL usually ends with a slash, e.g., "/Reyan_Luxe/"
+  const baseUrl = (import.meta as any).env?.BASE_URL || "/";
+  
+  return `${baseUrl}${normalizedPath}`;
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     let errorText = res.statusText;
@@ -38,13 +51,13 @@ export async function apiRequest(
     'Content-Type': 'application/json',
   };
 
-  // Attach auth token if present
+  // Attach auth token if present (Bearer JWT or legacy Token prefix)
   try {
     const token = localStorage.getItem('authToken');
     if (token) {
-      headers['Authorization'] = `Token ${token}`;
+      headers['Authorization'] = `Bearer ${token}`;
     }
-  } catch (_) {
+  } catch {
     // ignore storage errors
   }
 

@@ -1,21 +1,21 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
 
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// import { Label } from "@/components/ui/label";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiRequest } from '../lib/queryClient';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../hooks/use-toast'; // Import useToast
-import PasswordInput from "@/components/PasswordInput";
+import { useToast } from '../hooks/use-toast';
 
 const registerSchema = z.object({
   username: z.string().min(1, 'Username is required'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters long'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Za-z]/, 'Password must contain a letter')
+    .regex(/[0-9]/, 'Password must contain a number'),
 });
 
 type RegisterFormInputs = z.infer<typeof registerSchema>;
@@ -51,7 +51,11 @@ const onSubmit = async (data: RegisterFormInputs) => {
         password: data.password,
       });
       const loginData = await loginResponse.json();
-      login(loginData.token, { id: loginData.user_id, username: loginData.username || data.username, email: loginData.email });
+      login(loginData.token, {
+        id: String(loginData.user_id),
+        username: loginData.username || data.username,
+        email: loginData.email,
+      });
       navigate(redirectPath || '/');
     } catch (error: any) {
         console.error("Registration error:", error);
@@ -88,8 +92,9 @@ const onSubmit = async (data: RegisterFormInputs) => {
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-foreground">Password</label>
-        <PasswordInput
+        <input
           id="password"
+          type="password"
           placeholder="Password"
           {...register('password')}
           className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-foreground"

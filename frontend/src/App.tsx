@@ -8,20 +8,25 @@ import { LoadingScreen } from "./components/loading-screen";
 import Home from "./pages/home";
 import NotFound from "./pages/not-found";
 import About from "./pages/about";
-import Contact from "./pages/contact";
 import Products from "./pages/products";
 import ProductDetail from "./pages/product-detail";
-import CustomizationPage from "./pages/customization";
 import Cart from "./pages/cart";
 import Checkout from "./pages/checkout";
 import Wishlist from "./pages/wishlist";
 import OrderSuccess from "./pages/order-success";
+import Orders from "./pages/orders";
+import OrderDetails from "./pages/order-details";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import ForgotPassword from "./pages/forgot-password";
 import ResetPassword from "./pages/reset-password";
 import AccountPage from "./pages/account";
 import Admin from "./pages/admin";
+import AdminProducts from "./pages/admin-products";
+import AdminCategories from "./pages/admin-categories";
+import AdminInventory from "./pages/admin-inventory";
+import AdminCustomization from "./pages/admin-customization";
+import AdminOrders from "./pages/admin-orders";
 import { FloatingParticles, PageTransition } from "@/components/visual-effects";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Navbar from "./components/navbar";
@@ -42,7 +47,7 @@ function App() {
         <ThemeProvider>
         <TooltipProvider>
           <Toaster />
-          <Router basename="/Reyan_Luxe/">
+          <Router>
             {loading && <LoadingScreen onFinishLoading={handleFinishLoading} />}
             {!loading && <Navbar />}
             <FloatingParticles />
@@ -50,10 +55,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:productId" element={<ProductDetail />} />
-                <Route path="/customize/:productType/:productId?" element={<CustomizationPage />} />
                 <Route
                   path="/cart"
                   element={
@@ -92,10 +95,66 @@ function App() {
                   }
                 />
                 <Route
-                  path="/admin/*"
+                  path="/orders"
                   element={
                     <ProtectedRoute>
+                      <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/orders/:orderId"
+                  element={
+                    <ProtectedRoute>
+                      <OrderDetails />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute adminOnly>
                       <Admin />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/products"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminProducts />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/categories"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminCategories />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/inventory"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminInventory />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/customization"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminCustomization />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/orders"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminOrders />
                     </ProtectedRoute>
                   }
                 />

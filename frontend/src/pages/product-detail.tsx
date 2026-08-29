@@ -2,27 +2,53 @@ import Footer from "@/components/footer";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { API_BASE_URL } from "@/lib/queryClient";
+import { apiRequest, API_BASE_URL } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { ProductReviews } from "@/components/ProductReviews";
 import { SEO } from "@/components/SEO";
+import { CustomizationPreview } from "@/components/CustomizationPreview";
+import { CustomizationControls } from "@/components/CustomizationControls";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Product {
-  id: number;
+  _id: string;
   name: string;
   description: string;
+  shortDescription?: string;
   price: number;
-  image: string;
-  category: string;
-  badge: string;
-  is_signature_piece: boolean;
-  stock_quantity: number;
-  is_in_stock: boolean;
-  is_active: boolean;
-  category_slug?: string;
-  category_name?: string;
+  effectivePrice: number;
+  salePrice: number | null;
+  media: { url: string; isPrimary: boolean }[];
+  categoryId: string;
+  subcategoryId: string | null;
+  stock: number;
+  isInStock: boolean;
+  badge: string | null;
+  isSignaturePiece: boolean;
+  signatureCategory: string;
+  materials: string[];
+  colors: string[];
+  careInstructions?: string;
+  materialInfo?: string;
+  isCustomizable: boolean;
+}
+
+interface CustomizationField {
+  key: string;
+  label: string;
+  type: 'select' | 'multiselect' | 'color' | 'text' | 'number';
+  options?: { value: string; label: string; priceModifier?: number; imageUrl?: string }[];
+  required?: boolean;
+  sortOrder?: number;
+}
+
+interface CustomizationConfig {
+  productId: string;
+  productName: string;
+  basePrice: number;
+  fields: CustomizationField[];
+  previewLayers: { layerId: string; imageUrl: string; zIndex: number; linkedFieldKey?: string }[];
+  isCustomizable: boolean;
 }
 
 export default function ProductDetail() {
@@ -32,32 +58,32 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [customizationConfig, setCustomizationConfig] = useState<CustomizationConfig | null>(null);
+  const [customizationSelections, setCustomizationSelections] = useState<Record<string, string | string[]>>({});
+  const [customizationPrice, setCustomizationPrice] = useState<{ basePrice: number; priceModifier: number; totalPrice: number } | null>(null);
+  const [showCustomization, setShowCustomization] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const normalizedCategory = (value?: string | null) => {
-    if (!value) return "";
-    return value.toLowerCase() === "necklace" ? "Chain" : value;
-  };
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        let response;
-        try {
-          response = await axios.get(`${API_BASE_URL}/api/bracelets/${productId}/`);
-        } catch (braceletError: any) {
-          if (braceletError.response && braceletError.response.status === 404) {
-            response = await axios.get(`${API_BASE_URL}/api/chains/${productId}/`);
-          } else {
-            throw braceletError;
+        const response = await apiRequest('GET', `/api/v1/products/${productId}`);
+        const data = await response.json();
+        setProduct(data.data);
+
+        // Fetch customization config if product is customizable
+        if (data.data.isCustomizable) {
+          try {
+            const customResponse = await apiRequest('GET', `/api/v1/customization/products/${productId}/customization`);
+            const customData = await customResponse.json();
+            setCustomizationConfig(customData.data);
+            setShowCustomization(true);
+          } catch (customErr) {
+            console.error('Failed to fetch customization config:', customErr);
           }
         }
-        const p: any = response.data;
-        setProduct({
-          ...p,
-          image: p.imageUrl || p.image,
-        } as Product);
       } catch (err) {
         setError("Failed to fetch product details.");
         console.error(err);
@@ -71,6 +97,32 @@ export default function ProductDetail() {
     }
   }, [productId]);
 
+  useEffect(() => {
+    if (product && Object.keys(customizationSelections).length > 0) {
+      const calculatePrice = async () => {
+        try {
+          const response = await apiRequest('POST', `/api/v1/customization/products/${productId}/customization/calculate-price`, {
+            selections: customizationSelections,
+          });
+          const data = await response.json();
+          setCustomizationPrice(data.data);
+        } catch (err) {
+          console.error('Failed to calculate price:', err);
+        }
+      };
+      calculatePrice();
+    }
+  }, [customizationSelections, productId, product]);
+
+  const handleCustomizationChange = (key: string, value: string | string[]) => {
+    setCustomizationSelections(prev => ({ ...prev, [key]: value }));
+  };
+
+  const getProductImage = (product: Product) => {
+    const primaryMedia = product.media.find(m => m.isPrimary);
+    return primaryMedia?.url || product.media[0]?.url || '';
+  };
+
   const addToCart = async () => {
     if (!user) {
       toast({
@@ -82,7 +134,7 @@ export default function ProductDetail() {
       return;
     }
 
-    if (!product || !product.is_in_stock || product.stock_quantity < quantity) {
+    if (!product || !product.isInStock || product.stock < quantity) {
       toast({
         title: "Out of Stock",
         description: "This product is currently out of stock",
@@ -91,24 +143,39 @@ export default function ProductDetail() {
       return;
     }
 
+    // Validate customization if product is customizable
+    if (product.isCustomizable && showCustomization) {
+      try {
+        const validateResponse = await apiRequest('POST', `/api/v1/customization/products/${productId}/customization/validate`, {
+          selections: customizationSelections,
+        });
+        const validateData = await validateResponse.json();
+        if (!validateData.data.valid) {
+          toast({
+            title: "Invalid Customization",
+            description: validateData.data.errors.join(', '),
+            variant: "destructive",
+          });
+          return;
+        }
+      } catch (err) {
+        console.error('Validation error:', err);
+      }
+    }
+
     setAddingToCart(true);
     try {
-      const isChain = (product?.category_name?.toLowerCase()?.includes('chain') || product?.category?.toLowerCase() === 'chain' || product?.category?.toLowerCase() === 'necklace');
-      const productType = isChain ? 'chain' : 'bracelet';
-      const response = await fetch(`${API_BASE_URL}/api/cart-items/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify({
-          product_id: `${productType}-${product.id}`,
-          name: product.name,
-          price: product.price,
-          quantity: quantity,
-          image_url: product.image,
-        }),
-      });
+      const cartItem = {
+        productId: product._id,
+        quantity: quantity,
+        customization: product.isCustomizable && Object.keys(customizationSelections).length > 0 ? {
+          selections: customizationSelections,
+          previewImageUrl: customizationConfig?.previewLayers[0]?.imageUrl || getProductImage(product),
+          priceModifier: customizationPrice?.priceModifier || 0,
+        } : undefined,
+      };
+
+      const response = await apiRequest('POST', '/api/v1/cart', cartItem);
 
       if (response.ok) {
         toast({
@@ -141,23 +208,14 @@ export default function ProductDetail() {
       return;
     }
     try {
-      const isChain = (product?.category_name?.toLowerCase()?.includes('chain') || product?.category?.toLowerCase() === 'chain' || product?.category?.toLowerCase() === 'necklace');
-      const productType = isChain ? 'chain' : 'bracelet';
-      const response = await fetch(`${API_BASE_URL}/api/wishlist/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify({
-          product_type: productType,
-          product_id: product!.id,
-        }),
+      const response = await apiRequest('POST', '/api/v1/users/wishlist', {
+        productId: product!._id,
       });
       if (response.ok) {
-        toast({ title: "Added to Wishlist", description: "You can view it in your wishlist." });
-      } else {
-        toast({ title: "Error", description: "Failed to add to wishlist", variant: "destructive" });
+        toast({ 
+          title: "Added to Wishlist", 
+          description: "Product added to your wishlist",
+        });
       }
     } catch (error) {
       toast({ title: "Error", description: "Failed to add to wishlist", variant: "destructive" });
@@ -212,40 +270,89 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left: Product Image / Preview */}
           <div>
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-auto rounded-lg shadow-lg"
-            />
+            {showCustomization && customizationConfig ? (
+              <div className="aspect-square bg-gray-100 rounded-lg shadow-lg overflow-hidden">
+                <CustomizationPreview
+                  baseImage={getProductImage(product)}
+                  layers={customizationConfig.previewLayers}
+                  selections={customizationSelections}
+                  className="w-full h-full"
+                />
+              </div>
+            ) : (
+              <img
+                src={getProductImage(product)}
+                alt={product.name}
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            )}
           </div>
+
+          {/* Right: Product Details & Customization */}
           <div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
-            <p className="text-2xl text-primary-foreground mb-6">₹{product.price}</p>
+            
+            {/* Price Display */}
+            <div className="mb-4">
+              {customizationPrice ? (
+                <>
+                  <p className="text-2xl font-semibold">₹{customizationPrice.totalPrice}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Base: ₹{customizationPrice.basePrice} + Customization: ₹{customizationPrice.priceModifier}
+                  </p>
+                </>
+              ) : (
+                <>
+                  {product.salePrice && product.salePrice < product.price ? (
+                    <>
+                      <p className="text-2xl text-red-600 font-semibold">₹{product.salePrice}</p>
+                      <p className="text-lg text-muted-foreground line-through">₹{product.price}</p>
+                    </>
+                  ) : (
+                    <p className="text-2xl font-semibold">₹{product.price}</p>
+                  )}
+                </>
+              )}
+            </div>
+
             <p className="text-lg mb-6">{product.description}</p>
+            {product.shortDescription && (
+              <p className="text-sm text-muted-foreground mb-6">{product.shortDescription}</p>
+            )}
+
+            {/* Customization Section */}
+            {showCustomization && customizationConfig && (
+              <Card className="mb-6">
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Customize Your {product.name}</h2>
+                  <CustomizationControls
+                    fields={customizationConfig.fields}
+                    selections={customizationSelections}
+                    onChange={handleCustomizationChange}
+                    disabled={!product.isInStock}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Product Details */}
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2">Details:</h2>
               <ul className="list-disc list-inside ml-4">
-                <li>Category: {normalizedCategory(product.category)}</li>
-                <li>Badge: {product.badge}</li>
-                <li>Signature Piece: {product.is_signature_piece ? "Yes" : "No"}</li>
-                <li>Stock: {product.is_in_stock ? `${product.stock_quantity} available` : "Out of Stock"}</li>
+                <li>Stock: {product.isInStock ? `${product.stock} available` : "Out of Stock"}</li>
+                {product.badge && <li>Badge: {product.badge}</li>}
+                <li>Signature Piece: {product.isSignaturePiece ? "Yes" : "No"}</li>
+                {product.materials.length > 0 && <li>Materials: {product.materials.join(", ")}</li>}
+                {product.colors.length > 0 && <li>Colors: {product.colors.join(", ")}</li>}
+                {product.careInstructions && <li>Care: {product.careInstructions}</li>}
+                {product.isCustomizable && <li>✓ Customizable</li>}
               </ul>
             </div>
+
             <div className="flex gap-3 mt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const isChain = product.category_name?.toLowerCase()?.includes('chain') ?? false;
-                  const productType = isChain ? 'chain' : 'bracelet';
-                  navigate(`/customize/${productType}/${product.id}`);
-                }}
-                disabled={!product.is_in_stock}
-                className="flex-1"
-              >
-                Customize This Product
-              </Button>
               <Button
                 variant="outline"
                 onClick={addToWishlist}
@@ -258,7 +365,7 @@ export default function ProductDetail() {
               <Button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 variant="outline"
-                disabled={!product.is_in_stock}
+                disabled={!product.isInStock}
               >
                 -
               </Button>
@@ -266,19 +373,19 @@ export default function ProductDetail() {
               <Button
                 onClick={() => setQuantity(quantity + 1)}
                 variant="outline"
-                disabled={!product.is_in_stock || quantity >= product.stock_quantity}
+                disabled={!product.isInStock || quantity >= product.stock}
               >
                 +
               </Button>
               <Button
                 className="ml-4"
                 onClick={addToCart}
-                disabled={!product.is_in_stock || addingToCart}
+                disabled={!product.isInStock || addingToCart}
               >
                 {addingToCart ? "Adding..." : "Add to Cart"}
               </Button>
             </div>
-            {!product.is_in_stock && (
+            {!product.isInStock && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 This product is currently out of stock
               </div>
@@ -286,9 +393,6 @@ export default function ProductDetail() {
           </div>
         </div>
       </main>
-      <div className="container mx-auto px-4 py-8">
-        <ProductReviews productType={(product.category?.toLowerCase() === 'chain' || product.category?.toLowerCase() === 'necklace' || (product.category_name?.toLowerCase()?.includes('chain') ?? false)) ? 'chain' : 'bracelet'} productId={parseInt(productId!)} productName={product.name} />
-      </div>
       <Footer />
     </div>
   );

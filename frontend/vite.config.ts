@@ -3,8 +3,8 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import svgr from "vite-plugin-svgr"
  
-export default defineConfig({
-  base: "/Reyan_Luxe/",
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/' : '/Reyan_Luxe/',
   plugins: [react(), svgr()],
   resolve: {
     alias: {
@@ -20,4 +20,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))

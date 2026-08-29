@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
@@ -43,15 +43,15 @@ export default function Cart() {
     const fetchCartItems = async () => {
       try {
         setLoading(true);
-        const response = await apiRequest('GET', '/api/cart-items/');
+        const response = await apiRequest('GET', '/api/v1/cart');
         const data = await response.json();
         // Normalize backend payload to match UI expectations
-        const normalized: CartItem[] = (Array.isArray(data) ? data : []).map((item: any) => ({
-          id: String(item.id ?? item.product_id ?? ''),
+        const normalized: CartItem[] = (data.data?.items || []).map((item: any) => ({
+          id: String(item._id ?? item.productId ?? ''),
           name: item.name ?? '',
-          price: Number(item.price ?? 0),
+          price: Number(item.unitPrice ?? item.price ?? 0),
           quantity: Number(item.quantity ?? 1),
-          image: item.image_url || item.imageUrl || item.image || ''
+          image: item.imageUrl || item.image_url || item.image || ''
         }));
         setCartItems(normalized);
       } catch (err) {

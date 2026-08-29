@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Gem, Heart, Star, Leaf, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ResponsiveContainer } from "@/components/responsive-utils";
 import axios from "axios";
 import { API_BASE_URL } from "@/lib/queryClient";
 import { useNavigate } from "react-router-dom";
 
 interface BraceletCard {
-  id: number;
+  id: string | number;
   name: string;
   description: string;
   price: number;
@@ -30,8 +29,10 @@ const iconMap: { [key: string]: typeof Gem } = {
 
 const formatCategoryName = (category: string) => {
   if (category === "all") return "All";
-  if (category === "trending_bracelets") return "Trending Bracelets";
-  if (category === "latest_bracelet") return "Latest Bracelet";
+  if (category === "signature_trending") return "Trending";
+  if (category === "signature_fashion") return "Fashion";
+  if (category === "signature_latest") return "Latest";
+  if (category === "signature_none") return "General";
   return category
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -43,7 +44,7 @@ export default function CollectionSection() {
   const [bracelets, setBracelets] = useState<BraceletCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const dynamicFilters: string[] = ["all", "trending", "none"]; // Show actual signature categories based on data
+  const dynamicFilters: string[] = ["all", "signature_trending", "signature_fashion", "signature_latest", "signature_none"]; // Show actual signature categories based on data
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,10 +63,12 @@ export default function CollectionSection() {
         // Combine and map the data
         const bracelets = braceletsResponse.data.map(item => ({
           ...item,
+          id: `bracelet-${item.id}`,
           product_type: 'bracelet'
         }));
         const chains = chainsResponse.data.map(item => ({
           ...item,
+          id: `chain-${item.id}`,
           product_type: 'chain'
         }));
         
@@ -83,7 +86,10 @@ export default function CollectionSection() {
 
   const filteredBracelets = bracelets.filter((bracelet) => {
     if (activeFilter === "all") return bracelet.is_signature_piece === true;
-    return bracelet.is_signature_piece === true && (bracelet.signature_category === activeFilter || (bracelet.signature_category === null && activeFilter === "none"));
+    if (activeFilter === "signature_none") {
+      return bracelet.is_signature_piece === true && (bracelet.signature_category === null || bracelet.signature_category === "");
+    }
+    return bracelet.is_signature_piece === true && bracelet.signature_category === activeFilter.replace("signature_", "");
   });
 
   if (loading) {
@@ -96,7 +102,7 @@ export default function CollectionSection() {
 
   return (
     <section id="collection" className="py-20 bg-secondary">
-      <ResponsiveContainer className="px-6">
+      <div className="container mx-auto px-6">
         {/* Section Header */}
         <motion.div
           className="text-center mb-16"
@@ -109,10 +115,10 @@ export default function CollectionSection() {
             className="text-4xl md:text-5xl font-playfair font-bold text-foreground mb-4"
             data-testid="collection-title"
           >
-            Customer Favorites
+            Our Signature Pieces
           </h2>
           <p className="text-background/70 text-lg max-w-2xl mx-auto">
-            Discover our most loved pieces, carefully selected by our customers for their exceptional craftsmanship and timeless elegance.
+            Explore our exclusive collection of signature pieces, showcasing our most popular and highly-rated products.
           </p>
         </motion.div>
 
@@ -209,7 +215,7 @@ export default function CollectionSection() {
             </motion.div>
           ))}
         </motion.div>
-      </ResponsiveContainer>
+      </div>
     </section>
   );
 }

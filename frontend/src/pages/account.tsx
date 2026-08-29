@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { API_BASE_URL } from '@/lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { SEO } from '@/components/SEO';
@@ -24,7 +25,7 @@ interface OrderItem {
 }
 
 interface Order {
-  id: number;
+  id: string;
   order_number: string;
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   payment_status: 'pending' | 'completed' | 'failed';
@@ -42,12 +43,15 @@ interface Order {
 }
 
 interface UserProfile {
-  id: number;
+  id: string;
   username: string;
   email: string;
-  phone_number: string;
-  address: string;
-  date_joined: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  role: string;
+  isEmailVerified: boolean;
+  createdAt: string;
 }
 
 const AccountPage: React.FC = () => {
@@ -58,7 +62,10 @@ const AccountPage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'password'>('profile');
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ username: '', firstName: '', lastName: '', phone: '' });
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
   useEffect(() => {
     if (user) {
@@ -69,18 +76,15 @@ const AccountPage: React.FC = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/${user?.id}/`, {
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
+      const response = await apiRequest('GET', '/api/v1/users/me');
+      const data = await response.json();
+      setProfile(data.data);
+      setEditForm({
+        username: data.data.username || '',
+        firstName: data.data.firstName || '',
+        lastName: data.data.lastName || '',
+        phone: data.data.phone || '',
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(data);
-      } else {
-        throw new Error('Failed to fetch profile');
-      }
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast({
@@ -93,18 +97,9 @@ const AccountPage: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/orders/`, {
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      } else {
-        throw new Error('Failed to fetch orders');
-      }
+      const response = await apiRequest('GET', '/api/v1/orders');
+      const data = await response.json();
+      setOrders(data.data || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast({
@@ -117,30 +112,69 @@ const AccountPage: React.FC = () => {
     }
   };
 
-  const cancelOrder = async (orderId: number) => {
+  const cancelOrder = async (orderId: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/cancel_order/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
+      await apiRequest('POST', `/api/v1/orders/${orderId}/cancel`);
+      toast({
+        title: 'Order Cancelled',
+        description: 'Your order has been cancelled successfully',
       });
-
-      if (response.ok) {
-        toast({
-          title: 'Order Cancelled',
-          description: 'Your order has been cancelled successfully',
-        });
-        // Refresh orders
-        fetchOrders();
-      } else {
-        throw new Error('Failed to cancel order');
-      }
+      fetchOrders();
     } catch (error) {
       console.error('Error cancelling order:', error);
       toast({
         title: 'Error',
         description: 'Failed to cancel order',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiRequest('PATCH', '/api/v1/users/me', editForm);
+      toast({
+        title: 'Profile Updated',
+        description: 'Your profile has been updated successfully',
+      });
+      setEditMode(false);
+      fetchProfile();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update profile',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast({
+        title: 'Error',
+        description: 'Passwords do not match',
+        variant: 'destructive',
+      });
+      return;
+    }
+    try {
+      await apiRequest('POST', '/api/v1/users/change-password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      toast({
+        title: 'Password Changed',
+        description: 'Your password has been updated successfully',
+      });
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to change password',
         variant: 'destructive',
       });
     }
@@ -225,6 +259,13 @@ const AccountPage: React.FC = () => {
             >
               Order History
             </Button>
+            <Button
+              variant={activeTab === 'password' ? 'default' : 'ghost'}
+              onClick={() => setActiveTab('password')}
+              className="flex-1"
+            >
+              Change Password
+            </Button>
           </div>
 
           {/* Profile Tab */}
@@ -234,37 +275,142 @@ const AccountPage: React.FC = () => {
                 <CardTitle>Profile Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Username</Label>
-                    <p className="text-lg">{profile?.username || 'N/A'}</p>
+                {editMode ? (
+                  <form onSubmit={handleUpdateProfile} className="space-y-4">
+                    <div>
+                      <Label htmlFor="username">Username</Label>
+                      <Input
+                        id="username"
+                        value={editForm.username}
+                        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input
+                        id="firstName"
+                        value={editForm.firstName}
+                        onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        value={editForm.lastName}
+                        onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit">Save Changes</Button>
+                      <Button type="button" variant="outline" onClick={() => setEditMode(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-6">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Username</Label>
+                      <p className="text-lg">{profile?.username || 'N/A'}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Email</Label>
+                      <p className="text-lg">{profile?.email || 'N/A'}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">First Name</Label>
+                      <p className="text-lg">{profile?.firstName || 'N/A'}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Last Name</Label>
+                      <p className="text-lg">{profile?.lastName || 'N/A'}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
+                      <p className="text-lg">{profile?.phone || 'N/A'}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Role</Label>
+                      <p className="text-lg capitalize">{profile?.role || 'N/A'}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Email Verified</Label>
+                      <p className="text-lg">{profile?.isEmailVerified ? 'Yes' : 'No'}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Member Since</Label>
+                      <p className="text-lg">
+                        {profile?.createdAt 
+                          ? format(new Date(profile.createdAt), 'MMMM d, yyyy')
+                          : 'N/A'
+                        }
+                      </p>
+                    </div>
+                    
+                    <Button onClick={() => setEditMode(true)}>Edit Profile</Button>
                   </div>
-                  
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Password Tab */}
+          {activeTab === 'password' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Change Password</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleChangePassword} className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                    <p className="text-lg">{profile?.email || 'N/A'}</p>
+                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <Input
+                      id="currentPassword"
+                      type="password"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                      required
+                    />
                   </div>
-                  
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Phone Number</Label>
-                    <p className="text-lg">{profile?.phone_number || 'N/A'}</p>
+                    <Label htmlFor="newPassword">New Password</Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                      required
+                    />
                   </div>
-                  
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Address</Label>
-                    <p className="text-lg">{profile?.address || 'N/A'}</p>
+                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                      required
+                    />
                   </div>
-                  
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Member Since</Label>
-                    <p className="text-lg">
-                      {profile?.date_joined 
-                        ? format(new Date(profile.date_joined), 'MMMM d, yyyy')
-                        : 'N/A'
-                      }
-                    </p>
-                  </div>
-                </div>
+                  <Button type="submit">Change Password</Button>
+                </form>
               </CardContent>
             </Card>
           )}

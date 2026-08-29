@@ -16,18 +16,15 @@ export default function ForgotPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await apiRequest('POST', '/api/send-otp/', { email });
-      const data = await response.json().catch(() => ({}));
-      toast({ title: "OTP request", description: data?.message ? `${data.message}${data?.email === 'failed' ? ' (email failed)' : ''}` : 'Request processed.', variant: data?.email === 'failed' ? 'destructive' : 'default' });
-      // In DEBUG, we may have an OTP preview to aid development
-      if (data?.debug?.otp_preview) {
-        console.log('DEBUG OTP:', data.debug.otp_preview);
-      }
-      navigate("/reset-password", { state: { email } });
-    } catch (error: any) {
-      console.error("Error sending OTP request:", error);
-      const message = error?.message || 'Failed to send OTP. Please try again.';
-      toast({ title: "OTP failed", description: message, variant: "destructive" });
+      await apiRequest('POST', '/api/v1/auth/forgot-password', { email });
+      toast({
+        title: "Check your email",
+        description: "If an account exists, a reset link has been sent.",
+      });
+      navigate("/login");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to send reset email.';
+      toast({ title: "Request failed", description: message, variant: "destructive" });
     }
   };
 
@@ -44,8 +41,7 @@ export default function ForgotPassword() {
         <div className="w-full max-w-md border p-8 rounded-lg shadow-lg">
           <h1 className="text-4xl font-bold text-center mb-6">Forgot Password</h1>
           <p className="text-center text-muted-foreground mb-6">
-            Enter your email address and we'll send you a link to reset your
-            password.
+            Enter your email and we&apos;ll send you a link to reset your password.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

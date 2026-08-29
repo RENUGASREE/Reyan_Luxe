@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import PasswordInput from "@/components/PasswordInput";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/footer";
 import { apiRequest } from "../lib/queryClient";
@@ -26,17 +25,19 @@ export default function Register() {
       return;
     }
     try {
-      // Create account
-      await apiRequest('POST', '/api/register/', {
+      const response = await apiRequest('POST', '/api/v1/auth/register', {
         username: name,
         email,
         password,
       });
+      const data = await response.json();
       toast({ title: "Registration successful", description: "Logging you in…" });
-      // Auto-login
-      const res = await apiRequest('POST', '/api/login/', { email, password });
-      const data = await res.json();
-      login(data.token, { id: data.user_id, username: data.username || email, email: data.email });
+      login(data.data.accessToken, {
+        id: data.data.user.id,
+        username: data.data.user.username,
+        email: data.data.user.email,
+        role: data.data.user.role,
+      });
       navigate('/');
     } catch (err: any) {
       console.error('Registration failed:', err);
@@ -83,8 +84,9 @@ export default function Register() {
               </div>
               <div>
                 <Label htmlFor="password">Password</Label>
-                <PasswordInput
+                <Input
                   id="password"
+                  type="password"
                   placeholder="********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -93,8 +95,9 @@ export default function Register() {
               </div>
               <div>
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <PasswordInput
+                <Input
                   id="confirmPassword"
+                  type="password"
                   placeholder="********"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}

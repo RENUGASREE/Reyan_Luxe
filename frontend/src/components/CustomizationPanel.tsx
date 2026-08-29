@@ -84,35 +84,14 @@ export const CustomizationPanel: React.FC<CustomizationPanelProps> = ({
   const fetchCustomizationOptions = async () => {
     try {
       setLoading(true);
-      
-      // Fetch materials
-      const materialsResponse = await fetch(`${API_BASE_URL}/api/materials/`);
-      if (materialsResponse.ok) {
-        const materialsData = await materialsResponse.json();
-        setMaterials(materialsData);
-      }
-      
-      // Fetch chain types
-      const chainTypesResponse = await fetch(`${API_BASE_URL}/api/chain-types/`);
-      if (chainTypesResponse.ok) {
-        const chainTypesData = await chainTypesResponse.json();
-        setChainTypes(chainTypesData);
-      }
-      
-      // Fetch bracelet sizes
-      const sizesResponse = await fetch(`${API_BASE_URL}/api/bracelet-sizes/`);
-      if (sizesResponse.ok) {
-        const sizesData = await sizesResponse.json();
-        setBraceletSizes(sizesData);
-      }
-      
-      // Fetch charms
-      const charmsResponse = await fetch(`${API_BASE_URL}/api/customization-options/?option_type=charm`);
-      if (charmsResponse.ok) {
-        const charmsData = await charmsResponse.json();
-        setCharms(charmsData);
-      }
-      
+      // Customization options should come from the v1 API via product customization endpoint
+      // This component needs to be updated to use the new v1 customization API
+      // For now, show a message that this needs updating
+      toast({
+        title: 'Feature Update Required',
+        description: 'Customization panel is being updated for the new API',
+        variant: 'destructive',
+      });
     } catch (error) {
       console.error('Error fetching customization options:', error);
       toast({

@@ -9,20 +9,38 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RazorpayCheckout } from "@/components/RazorpayCheckout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { API_BASE_URL } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
 import { useNavigate } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import AddressManager from "@/components/AddressManager";
 
 interface CartItem {
-  id: number;
-  product_type: string;
-  product_id: number;
+  _id: string;
+  productId: string;
+  sku: string;
+  name: string;
+  imageUrl?: string;
+  unitPrice: number;
   quantity: number;
-  price: number;
-  product?: {
-    name: string;
-    image?: string;
+  customization?: {
+    selections: Record<string, string | string[]>;
+    previewImageUrl?: string;
+    priceModifier?: number;
   };
+}
+
+interface Address {
+  _id: string;
+  label?: string;
+  fullName: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  isDefault: boolean;
 }
 
 // interface OrderData {
@@ -42,61 +60,42 @@ export default function Checkout() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [orderProcessing, setOrderProcessing] = useState(false);
-  const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [useNewAddress, setUseNewAddress] = useState(false);
   
-  const [shippingInfo, setShippingInfo] = useState({
+  const [newAddress, setNewAddress] = useState({
+    label: "",
     fullName: "",
-    address: "",
+    line1: "",
+    line2: "",
     city: "",
-    zip: "",
+    state: "",
+    postalCode: "",
     country: "India",
     phone: "",
-    email: "",
-  });
-  
-  const [billingInfo, setBillingInfo] = useState({
-    sameAsShipping: true,
-    fullName: "",
-    address: "",
-    city: "",
-    zip: "",
-    country: "India",
   });
   
   const [paymentMethod, setPaymentMethod] = useState("razorpay");
   const [orderNotes, setOrderNotes] = useState("");
 
   // Calculate total
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 1000 ? 0 : 50; // Free shipping over ₹1000
+  const subtotal = cartItems.reduce((sum, item) => {
+    const customizationPrice = item.customization?.priceModifier || 0;
+    return sum + ((item.unitPrice + customizationPrice) * item.quantity);
+  }, 0);
+  const shipping = subtotal >= 1000 ? 0 : 50; // Free shipping over ₹1000
   const total = subtotal + shipping;
 
   useEffect(() => {
     fetchCartItems();
-    if (user) {
-      setShippingInfo(prev => ({
-        ...prev,
-        fullName: user.username || '',
-        email: user.email || '',
-        phone: (user as any).phone_number || '',
-      }));
-    }
   }, [user]);
 
   const fetchCartItems = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cart-items/`, {
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCartItems(data);
-      } else {
-        throw new Error('Failed to fetch cart items');
-      }
+      const response = await apiRequest('GET', '/api/v1/cart');
+      const data = await response.json();
+      setCartItems(data.data.items || []);
     } catch (error) {
       console.error('Error fetching cart items:', error);
       toast({
@@ -117,33 +116,51 @@ export default function Checkout() {
     try {
       setOrderProcessing(true);
       
+      const shippingAddress = useNewAddress ? newAddress : selectedAddress;
+      if (!shippingAddress) {
+        toast({
+          title: 'Error',
+          description: 'Please select or add a shipping address',
+          variant: 'destructive',
+        });
+        return null;
+      }
+
       const orderData = {
-        shipping_address: `${shippingInfo.fullName}, ${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.zip}, ${shippingInfo.country}`,
-        billing_address: billingInfo.sameAsShipping 
-          ? `${shippingInfo.fullName}, ${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.zip}, ${shippingInfo.country}`
-          : `${billingInfo.fullName}, ${billingInfo.address}, ${billingInfo.city}, ${billingInfo.zip}, ${billingInfo.country}`,
-        phone_number: shippingInfo.phone,
-        email: shippingInfo.email,
+        shippingAddress: {
+          fullName: shippingAddress.fullName,
+          line1: shippingAddress.line1,
+          line2: shippingAddress.line2,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          postalCode: shippingAddress.postalCode,
+          country: shippingAddress.country,
+          phone: shippingAddress.phone,
+        },
+        billingAddress: {
+          fullName: shippingAddress.fullName,
+          line1: shippingAddress.line1,
+          line2: shippingAddress.line2,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          postalCode: shippingAddress.postalCode,
+          country: shippingAddress.country,
+          phone: shippingAddress.phone,
+        },
+        email: user?.email || '',
+        phone: shippingAddress.phone,
         notes: orderNotes,
-        payment_method: paymentMethod,
-        total_amount: total,
+        paymentMethod: paymentMethod,
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/orders/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (response.ok) {
-        const order = await response.json();
-        setCreatedOrderId(order.id);
-        return order;
+      const response = await apiRequest('POST', '/api/v1/orders', orderData);
+      const data = await response.json();
+      
+      if (data.success) {
+        setCreatedOrderId(data.data._id);
+        return data.data;
       } else {
-        throw new Error('Failed to create order');
+        throw new Error(data.error || 'Failed to create order');
       }
     } catch (error) {
       console.error('Error creating order:', error);
@@ -159,21 +176,21 @@ export default function Checkout() {
   };
 
   const validateForm = () => {
-    if (!shippingInfo.fullName || !shippingInfo.address || !shippingInfo.city || 
-        !shippingInfo.zip || !shippingInfo.phone || !shippingInfo.email) {
+    if (!useNewAddress && !selectedAddress) {
       toast({
-        title: 'Missing Information',
-        description: 'Please fill in all shipping information',
+        title: 'Missing Address',
+        description: 'Please select a shipping address',
         variant: 'destructive',
       });
       return false;
     }
 
-    if (!billingInfo.sameAsShipping) {
-      if (!billingInfo.fullName || !billingInfo.address || !billingInfo.city || !billingInfo.zip) {
+    if (useNewAddress) {
+      if (!newAddress.fullName || !newAddress.line1 || !newAddress.city || 
+          !newAddress.state || !newAddress.postalCode || !newAddress.phone) {
         toast({
           title: 'Missing Information',
-          description: 'Please fill in all billing information',
+          description: 'Please fill in all address fields',
           variant: 'destructive',
         });
         return false;
@@ -194,12 +211,13 @@ export default function Checkout() {
 
   const handlePlaceOrder = async () => {
     const order = await createOrder();
-    if (order && paymentMethod === 'razorpay') {
-      // Razorpay payment will be handled by the RazorpayCheckout component
+    if (order && paymentMethod === 'cod') {
+      // COD orders are confirmed immediately
       toast({
-        title: 'Order Created',
-        description: 'Please complete the payment to place your order',
+        title: 'Order Placed',
+        description: 'Your order has been placed successfully',
       });
+      navigate('/order-success', { state: { order } });
     }
   };
 
@@ -241,137 +259,130 @@ export default function Checkout() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            {/* Shipping Information */}
+            {/* Address Selection */}
             <Card>
               <CardHeader>
-                <CardTitle>Shipping Information</CardTitle>
+                <CardTitle>Shipping Address</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      value={shippingInfo.fullName}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, fullName: e.target.value })}
-                      required
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="useSavedAddress"
+                      checked={!useNewAddress}
+                      onChange={() => setUseNewAddress(false)}
                     />
+                    <Label htmlFor="useSavedAddress">Use saved address</Label>
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={shippingInfo.email}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-                      required
+                  
+                  {!useNewAddress && (
+                    <AddressManager
+                      onSelectAddress={setSelectedAddress}
+                      selectedAddressId={selectedAddress?._id}
+                      showSelection={true}
                     />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      value={shippingInfo.address}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                      required
+                  )}
+                  
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="useNewAddress"
+                      checked={useNewAddress}
+                      onChange={() => setUseNewAddress(true)}
                     />
+                    <Label htmlFor="useNewAddress">Add new address</Label>
                   </div>
-                  <div>
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={shippingInfo.city}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="zip">ZIP Code</Label>
-                    <Input
-                      id="zip"
-                      value={shippingInfo.zip}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, zip: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      value={shippingInfo.phone}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, phone: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={shippingInfo.country}
-                      onChange={(e) => setShippingInfo({ ...shippingInfo, country: e.target.value })}
-                      required
-                    />
-                  </div>
+                  
+                  {useNewAddress && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div>
+                        <Label htmlFor="newLabel">Label (Optional)</Label>
+                        <Input
+                          id="newLabel"
+                          placeholder="e.g., Home, Office"
+                          value={newAddress.label}
+                          onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="newFullName">Full Name *</Label>
+                        <Input
+                          id="newFullName"
+                          value={newAddress.fullName}
+                          onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor="newLine1">Address Line 1 *</Label>
+                        <Input
+                          id="newLine1"
+                          value={newAddress.line1}
+                          onChange={(e) => setNewAddress({ ...newAddress, line1: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor="newLine2">Address Line 2 (Optional)</Label>
+                        <Input
+                          id="newLine2"
+                          value={newAddress.line2}
+                          onChange={(e) => setNewAddress({ ...newAddress, line2: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="newCity">City *</Label>
+                        <Input
+                          id="newCity"
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="newState">State *</Label>
+                        <Input
+                          id="newState"
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="newPostalCode">PIN Code *</Label>
+                        <Input
+                          id="newPostalCode"
+                          pattern="[0-9]{6}"
+                          placeholder="6 digits"
+                          value={newAddress.postalCode}
+                          onChange={(e) => setNewAddress({ ...newAddress, postalCode: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="newCountry">Country *</Label>
+                        <Input
+                          id="newCountry"
+                          value={newAddress.country}
+                          onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="newPhone">Phone *</Label>
+                        <Input
+                          id="newPhone"
+                          type="tel"
+                          placeholder="10 digits"
+                          value={newAddress.phone}
+                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Billing Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Billing Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-2 mb-4">
-                  <input
-                    type="checkbox"
-                    id="sameAsShipping"
-                    checked={billingInfo.sameAsShipping}
-                    onChange={(e) => setBillingInfo({ ...billingInfo, sameAsShipping: e.target.checked })}
-                  />
-                  <Label htmlFor="sameAsShipping">Same as shipping address</Label>
-                </div>
-                
-                {!billingInfo.sameAsShipping && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="billingFullName">Full Name</Label>
-                      <Input
-                        id="billingFullName"
-                        value={billingInfo.fullName}
-                        onChange={(e) => setBillingInfo({ ...billingInfo, fullName: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <Label htmlFor="billingAddress">Address</Label>
-                      <Input
-                        id="billingAddress"
-                        value={billingInfo.address}
-                        onChange={(e) => setBillingInfo({ ...billingInfo, address: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="billingCity">City</Label>
-                      <Input
-                        id="billingCity"
-                        value={billingInfo.city}
-                        onChange={(e) => setBillingInfo({ ...billingInfo, city: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="billingZip">ZIP Code</Label>
-                      <Input
-                        id="billingZip"
-                        value={billingInfo.zip}
-                        onChange={(e) => setBillingInfo({ ...billingInfo, zip: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
@@ -430,19 +441,36 @@ export default function Checkout() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">
-                          {item.product?.name || `Product ${item.product_id}`}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Qty: {item.quantity}
-                        </p>
+                  {cartItems.map((item) => {
+                    const customizationPrice = item.customization?.priceModifier || 0;
+                    const itemTotal = (item.unitPrice + customizationPrice) * item.quantity;
+                    return (
+                      <div key={item._id} className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Qty: {item.quantity} × ₹{item.unitPrice.toFixed(2)}
+                            </p>
+                            {item.customization && (
+                              <div className="mt-1 text-sm">
+                                <p className="text-muted-foreground">Customization:</p>
+                                <ul className="text-xs text-muted-foreground ml-4">
+                                  {Object.entries(item.customization.selections).map(([key, value]) => (
+                                    <li key={key}>{key}: {Array.isArray(value) ? value.join(', ') : value}</li>
+                                  ))}
+                                </ul>
+                                {customizationPrice > 0 && (
+                                  <p className="text-xs text-primary">+ ₹{customizationPrice.toFixed(2)}</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <span className="font-medium">₹{itemTotal.toFixed(2)}</span>
+                        </div>
                       </div>
-                      <span>₹{(item.price * item.quantity).toFixed(2)}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                   
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between">
@@ -463,12 +491,12 @@ export default function Checkout() {
                     <RazorpayCheckout
                       orderId={createdOrderId}
                       amount={total}
-                      onSuccess={() => {
+                      onSuccess={(response) => {
                         toast({
                           title: 'Order Placed Successfully',
                           description: 'Your order has been placed and payment received',
                         });
-                        navigate('/order-success');
+                        navigate('/order-success', { state: { orderId: createdOrderId } });
                       }}
                       onFailure={(_error) => {
                         toast({
@@ -481,10 +509,10 @@ export default function Checkout() {
                   ) : (
                     <Button
                       onClick={handlePlaceOrder}
-                      disabled={orderProcessing || paymentMethod === 'razorpay'}
+                      disabled={orderProcessing}
                       className="w-full"
                     >
-                      {orderProcessing ? 'Processing...' : 'Place Order'}
+                      {orderProcessing ? 'Processing...' : `Place Order (${paymentMethod === 'cod' ? 'Cash on Delivery' : 'Pay with Razorpay'})`}
                     </Button>
                   )}
                 </div>

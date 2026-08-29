@@ -2,15 +2,12 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
-import PasswordInput from "@/components/PasswordInput";
-// import { Button } from "@/components/ui/button";
-// import { Label } from "@/components/ui/label";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiRequest } from '../lib/queryClient';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../hooks/use-toast'; // Import useToast
+import { useToast } from '../hooks/use-toast';
 
 const loginSchema = z.object({
   identifier: z.string().min(1, 'Email or Username is required'),
@@ -38,7 +35,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectPath }) => {
         : { username: data.identifier, password: data.password };
       const response = await apiRequest('POST', '/api/login/', payload);
       const loginData = await response.json();
-      login(loginData.token, { id: loginData.user_id, username: loginData.username || loginData.email, email: loginData.email });
+      login(loginData.token, {
+        id: String(loginData.user_id),
+        username: loginData.username || loginData.email,
+        email: loginData.email,
+      });
       toast({
         title: "Login successful!",
         description: "Welcome back!",
@@ -70,7 +71,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectPath }) => {
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-foreground">Password</label>
-        <PasswordInput
+        <Input
+          type="password"
           placeholder="Password"
           {...register("password")}
           className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-foreground"

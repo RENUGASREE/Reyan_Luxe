@@ -4,9 +4,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  adminOnly?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly = false }) => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,6 +37,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       );
     }
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (adminOnly && user.role !== 'admin') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="text-center p-8 border rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold mb-4">Admin Access Required</h2>
+          <p>You do not have permission to view this page.</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

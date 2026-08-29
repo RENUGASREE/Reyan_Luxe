@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { API_BASE_URL } from '@/lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 import { useNavigate } from 'react-router-dom';
 
 // Load Razorpay script dynamically
@@ -17,7 +17,7 @@ const loadRazorpayScript = () => {
 };
 
 interface RazorpayCheckoutProps {
-  orderId: number;
+  orderId: string;
   amount: number; // Amount in rupees
   onSuccess?: (response: any) => void;
   onFailure?: (error: any) => void;
@@ -49,16 +49,9 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   const createRazorpayOrder = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/payments/razorpay/create_order/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify({
-          order_id: orderId,
-          amount: amount * 100, // Convert to paise
-        }),
+      const response = await apiRequest('POST', '/api/v1/payments/razorpay/create-order', {
+        orderId,
+        amount,
       });
 
       if (!response.ok) {
@@ -79,18 +72,11 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   const verifyPayment = async (paymentResponse: any) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/payments/razorpay/verify_payment/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify({
-          order_id: orderId,
-          razorpay_order_id: paymentResponse.razorpay_order_id,
-          razorpay_payment_id: paymentResponse.razorpay_payment_id,
-          razorpay_signature: paymentResponse.razorpay_signature,
-        }),
+      const response = await apiRequest('POST', '/api/v1/payments/razorpay/verify', {
+        order_id: orderId,
+        razorpay_order_id: paymentResponse.razorpay_order_id,
+        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+        razorpay_signature: paymentResponse.razorpay_signature,
       });
 
       if (!response.ok) {
