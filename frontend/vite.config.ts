@@ -4,7 +4,7 @@ import { defineConfig } from "vite"
 import svgr from "vite-plugin-svgr"
  
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/' : '/Reyan_Luxe/',
+  base: '/',
   plugins: [react(), svgr()],
   resolve: {
     alias: {
@@ -17,6 +17,14 @@ export default defineConfig(({ mode }) => ({
       "/api": {
         target: "http://localhost:8000",
         changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
       },
     },
   },
