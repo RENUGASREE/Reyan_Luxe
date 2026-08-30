@@ -27,13 +27,14 @@ export default function Wishlist() {
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const fetchWishlist = async () => {
-    if (!user) {
-      navigate('/login');
+    if (!user || !token) {
+      setError('Please login to view your wishlist');
+      setLoading(false);
       return;
     }
     try {
@@ -41,6 +42,7 @@ export default function Wishlist() {
       const data = await response.json();
       setItems(data.data || []);
     } catch (e: any) {
+      console.error('Wishlist fetch error:', e);
       setError(e.message || 'Failed to load wishlist');
     } finally {
       setLoading(false);
@@ -49,7 +51,7 @@ export default function Wishlist() {
 
   useEffect(() => {
     fetchWishlist();
-  }, [user]);
+  }, [user, token]);
 
   const removeItem = async (id: string) => {
     try {

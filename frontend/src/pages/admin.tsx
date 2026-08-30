@@ -20,20 +20,69 @@ export default function Admin() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!token) return;
-    fetch(`${API_BASE_URL}/api/v1/admin/dashboard`, {
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: "include",
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load admin dashboard");
-        const json = await res.json();
+    if (!token) {
+      setError('Please login to access admin dashboard');
+      setLoading(false);
+      return;
+    }
+    
+    if (user?.role !== 'admin') {
+      setError('Admin access required');
+      setLoading(false);
+      return;
+    }
+
+    const fetchDashboard = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/admin/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load admin dashboard: ${response.status}`);
+        }
+        
+        const json = await response.json();
         setStats(json.data);
-      })
-      .catch((err) => setError(err.message));
-  }, [token]);
+      } catch (err: any) {
+        console.error('Admin dashboard error:', err);
+        setError(err.message || 'Failed to load admin dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, [token, user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <SEO title="Admin Dashboard - Reyan Luxe" noindex />
+        <main className="container mx-auto px-4 py-8 pt-20">
+          <div className="text-center text-xl">Loading admin dashboard...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <SEO title="Admin Dashboard - Reyan Luxe" noindex />
+        <main className="container mx-auto px-4 py-8 pt-20">
+          <div className="text-center">
+            <p className="text-xl text-destructive mb-6">{error}</p>
+            <Button onClick={() => navigate('/')}>Return Home</Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
