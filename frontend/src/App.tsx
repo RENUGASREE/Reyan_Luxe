@@ -121,7 +121,23 @@ function App() {
                   }
                 />
                 <Route
+                  path="/admin/"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <Admin />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/admin/products"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminProducts />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/products/"
                   element={
                     <ProtectedRoute adminOnly>
                       <AdminProducts />
@@ -137,7 +153,23 @@ function App() {
                   }
                 />
                 <Route
+                  path="/admin/categories/"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminCategories />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/admin/inventory"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminInventory />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/inventory/"
                   element={
                     <ProtectedRoute adminOnly>
                       <AdminInventory />
@@ -153,7 +185,23 @@ function App() {
                   }
                 />
                 <Route
+                  path="/admin/customization/"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminCustomization />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/admin/orders"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminOrders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/orders/"
                   element={
                     <ProtectedRoute adminOnly>
                       <AdminOrders />
