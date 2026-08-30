@@ -21,6 +21,7 @@ import Register from "./pages/register";
 import ForgotPassword from "./pages/forgot-password";
 import ResetPassword from "./pages/reset-password";
 import AccountPage from "./pages/account";
+import Contact from "./pages/contact";
 import Admin from "./pages/admin";
 import AdminProducts from "./pages/admin-products";
 import AdminCategories from "./pages/admin-categories";
@@ -55,6 +56,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:productId" element={<ProductDetail />} />
                 <Route
