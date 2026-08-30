@@ -35,26 +35,28 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectPath }) => {
 const onSubmit = async (data: RegisterFormInputs) => {
     try {
       // Use the dedicated registration endpoint
-      await apiRequest('POST', '/api/register/', {
+      const response = await apiRequest('POST', '/api/v1/auth/register', {
         username: data.username,
         email: data.email,
         password: data.password,
       });
+      const registerData = await response.json();
       toast({
         title: "Registration successful!",
         description: "Logging you in...",
         variant: "default",
       });
       // Automatically log in after registration using email-based auth
-      const loginResponse = await apiRequest('POST', '/api/login/', {
+      const loginResponse = await apiRequest('POST', '/api/v1/auth/login', {
         email: data.email,
         password: data.password,
       });
       const loginData = await loginResponse.json();
-      login(loginData.token, {
-        id: String(loginData.user_id),
-        username: loginData.username || data.username,
-        email: loginData.email,
+      login(loginData.data.accessToken, {
+        id: String(loginData.data.user.id),
+        username: loginData.data.user.username || data.username,
+        email: loginData.data.user.email,
+        role: loginData.data.user.role,
       });
       navigate(redirectPath || '/');
     } catch (error: any) {

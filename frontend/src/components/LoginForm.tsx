@@ -30,15 +30,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectPath }) => {
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
-      const payload = (data.identifier.includes('@'))
-        ? { email: data.identifier, password: data.password }
-        : { username: data.identifier, password: data.password };
-      const response = await apiRequest('POST', '/api/login/', payload);
+      // Backend only accepts email for login, not username
+      const payload = { email: data.identifier, password: data.password };
+      const response = await apiRequest('POST', '/api/v1/auth/login', payload);
       const loginData = await response.json();
-      login(loginData.token, {
-        id: String(loginData.user_id),
-        username: loginData.username || loginData.email,
-        email: loginData.email,
+      login(loginData.data.accessToken, {
+        id: String(loginData.data.user.id),
+        username: loginData.data.user.username || loginData.data.user.email,
+        email: loginData.data.user.email,
+        role: loginData.data.user.role,
       });
       toast({
         title: "Login successful!",
@@ -48,7 +48,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectPath }) => {
       navigate(redirectPath || '/'); // Redirect to home page or specified path after successful login
     } catch (error: any) {
       console.error('Login failed:', error);
-      const errorMessage = error.response?.data?.detail || 'Login failed. Please check your credentials.';
+      const errorMessage = error.message || 'Login failed. Please check your credentials.';
       toast({
         title: "Login Failed",
         description: errorMessage,
