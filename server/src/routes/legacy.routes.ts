@@ -1,4 +1,4 @@
-import { Router, Request } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { Category, Product } from "../models/index.js";
 import * as authService from "../services/auth.service.js";
 import { setRefreshCookie } from "../controllers/auth.controller.js";
@@ -58,7 +58,7 @@ async function listLegacyProducts(productTypes: ("bracelet" | "earring" | "bangl
   return Promise.all(products.map((p) => toLegacyProduct(p, legacyType)));
 }
 
-router.get("/bracelets", async (req, res, next) => {
+router.get("/bracelets", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = await listLegacyProducts(["bracelet"], req);
     res.json(data);
@@ -67,7 +67,7 @@ router.get("/bracelets", async (req, res, next) => {
   }
 });
 
-router.get("/bracelets/:id", async (req, res, next) => {
+router.get("/bracelets/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findById(req.params.id).lean();
     if (!product) throw new AppError("Not found", 404);
@@ -77,7 +77,7 @@ router.get("/bracelets/:id", async (req, res, next) => {
   }
 });
 
-router.get("/chains", async (req, res, next) => {
+router.get("/chains", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = await listLegacyProducts(["earring", "bangle"], req);
     res.json(data);
@@ -86,7 +86,7 @@ router.get("/chains", async (req, res, next) => {
   }
 });
 
-router.get("/chains/:id", async (req, res, next) => {
+router.get("/chains/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findById(req.params.id).lean();
     if (!product) throw new AppError("Not found", 404);
@@ -96,7 +96,7 @@ router.get("/chains/:id", async (req, res, next) => {
   }
 });
 
-router.get("/categories", async (_req, res, next) => {
+router.get("/categories", async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const categories = await Category.find({ isActive: true }).sort({ sortOrder: 1 }).lean();
     res.json(
@@ -120,7 +120,7 @@ const legacyLoginSchema = loginSchema.extend({
   username: z.string().optional(),
 });
 
-router.post("/login", validateBody(legacyLoginSchema), async (req, res, next) => {
+router.post("/login", validateBody(legacyLoginSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     let email = req.body.email as string | undefined;
     if (!email && req.body.username) {
@@ -145,7 +145,7 @@ router.post("/login", validateBody(legacyLoginSchema), async (req, res, next) =>
   }
 });
 
-router.post("/register", validateBody(registerSchema), async (req, res, next) => {
+router.post("/register", validateBody(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await authService.registerUser(req.body);
     setRefreshCookie(res, result.refreshToken);
@@ -160,15 +160,15 @@ router.post("/register", validateBody(registerSchema), async (req, res, next) =>
   }
 });
 
-router.post("/send-otp", (_req, res) => {
+router.post("/send-otp", (_req: Request, res: Response) => {
   res.json({ message: "Use /api/v1/auth/forgot-password for password reset links." });
 });
 
-router.post("/verify-otp", (_req, res) => {
+router.post("/verify-otp", (_req: Request, res: Response) => {
   res.status(400).json({ error: "OTP flow replaced. Use the link sent to your email." });
 });
 
-router.post("/reset-password", (_req, res) => {
+router.post("/reset-password", (_req: Request, res: Response) => {
   res.status(400).json({ error: "Use /api/v1/auth/reset-password with your reset token." });
 });
 

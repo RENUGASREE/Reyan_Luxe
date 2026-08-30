@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { requireAuth } from "../middleware/auth.js";
 import * as cartService from "../services/cart.service.js";
@@ -172,7 +172,7 @@ router.delete("/wishlist/:id", requireAuth, async (req, res, next) => {
 });
 
 // --- Reviews ---
-router.get("/reviews", async (req, res, next) => {
+router.get("/reviews", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { product_type: _pt, product_id } = req.query;
     if (!product_id) {
@@ -186,7 +186,7 @@ router.get("/reviews", async (req, res, next) => {
   }
 });
 
-router.post("/reviews", requireAuth, async (req, res, next) => {
+router.post("/reviews", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const review = await reviewService.createReview(authUserId(req), req.body);
     res.status(201).json(reviewService.toLegacyReview(review.toObject() as unknown as Record<string, unknown>));
@@ -196,7 +196,7 @@ router.post("/reviews", requireAuth, async (req, res, next) => {
 });
 
 // --- Customization ---
-router.get("/materials", async (_req, res, next) => {
+router.get("/materials", async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const data = await customizationService.getCustomizationOptions("bracelet");
     res.json(data.materials);
@@ -205,7 +205,7 @@ router.get("/materials", async (_req, res, next) => {
   }
 });
 
-router.get("/chain-types", async (_req, res, next) => {
+router.get("/chain-types", async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const data = await customizationService.getCustomizationOptions("chain");
     res.json(data.chainTypes);
@@ -214,7 +214,7 @@ router.get("/chain-types", async (_req, res, next) => {
   }
 });
 
-router.get("/bracelet-sizes", async (_req, res, next) => {
+router.get("/bracelet-sizes", async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const data = await customizationService.getCustomizationOptions("bracelet");
     res.json(data.braceletSizes);
@@ -223,7 +223,7 @@ router.get("/bracelet-sizes", async (_req, res, next) => {
   }
 });
 
-router.get("/customization-options", async (req, res, next) => {
+router.get("/customization-options", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const optionType = req.query.option_type;
     const data = await customizationService.getCustomizationOptions("bracelet");
@@ -237,7 +237,7 @@ router.get("/customization-options", async (req, res, next) => {
   }
 });
 
-router.post("/customized-products/generate-preview", requireAuth, async (req, res, next) => {
+router.post("/customized-products/generate-preview", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { generatePreviewLegacy } = await import("../services/customization.service.js");
     const result = await generatePreviewLegacy({
@@ -251,7 +251,7 @@ router.post("/customized-products/generate-preview", requireAuth, async (req, re
   }
 });
 
-router.post("/customized-products", requireAuth, async (req, res, next) => {
+router.post("/customized-products", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const saved = await customizationService.saveCustomizedProduct(authUserId(req), req.body);
     res.status(201).json(saved);
@@ -260,7 +260,7 @@ router.post("/customized-products", requireAuth, async (req, res, next) => {
   }
 });
 
-router.post("/customized-products/:id/add_to_cart", requireAuth, async (req, res, next) => {
+router.post("/customized-products/:id/add_to_cart", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await customizationService.addCustomizedToCart(authUserId(req), {
       product_type: req.body.product_type ?? "bracelet",
@@ -276,7 +276,7 @@ router.post("/customized-products/:id/add_to_cart", requireAuth, async (req, res
 });
 
 // --- Razorpay ---
-router.post("/payments/razorpay/create_order", requireAuth, async (req, res, next) => {
+router.post("/payments/razorpay/create_order", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const orderId = req.body.order_id;
     const amount = Number(req.body.amount) / 100;
@@ -287,7 +287,7 @@ router.post("/payments/razorpay/create_order", requireAuth, async (req, res, nex
   }
 });
 
-router.post("/payments/razorpay/verify_payment", requireAuth, async (req, res, next) => {
+router.post("/payments/razorpay/verify_payment", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await paymentService.verifyRazorpayPayment(authUserId(req), req.body);
     res.json(result);
@@ -296,7 +296,7 @@ router.post("/payments/razorpay/verify_payment", requireAuth, async (req, res, n
   }
 });
 
-router.post("/payments/razorpay/payment_failed", requireAuth, async (req, res, next) => {
+router.post("/payments/razorpay/payment_failed", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await paymentService.recordPaymentFailure(
       authUserId(req),

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 import { env } from "../config/env.js";
 import { Order } from "../models/Order.js";
@@ -9,7 +9,7 @@ import { Coupon } from "../models/Coupon.js";
 const router = Router();
 
 // Razorpay webhook endpoint
-router.post("/razorpay", async (req, res, next) => {
+router.post("/razorpay", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const signature = req.headers["x-razorpay-signature"] as string;
     if (!signature) {

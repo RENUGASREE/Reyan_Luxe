@@ -145,7 +145,7 @@ export async function validateCustomization(productId: string, selections: Recor
 
   // Check for extra fields not in configuration
   for (const key of Object.keys(selections)) {
-    const field = fields.find((f) => f.key === key);
+    const field = fields.find((f: ICustomizationField) => f.key === key);
     if (!field) {
       warnings.push(`Unknown customization field: ${key}`);
     }
@@ -227,7 +227,7 @@ export async function generatePreview(productId: string, selections: Record<stri
     if (!value) continue;
     const values = Array.isArray(value) ? value : [value];
     for (const v of values) {
-      const opt = field.options?.find((o) => o.value === v || o.label === v);
+      const opt = field.options?.find((o: { value: string; label: string; priceModifier?: number }) => o.value === v || o.label === v);
       if (opt?.priceModifier) modifier += opt.priceModifier;
     }
   }
@@ -265,7 +265,7 @@ export async function generatePreviewLegacy(input: {
     if (!val) continue;
     const values = Array.isArray(val) ? val : [val];
     for (const v of values) {
-      const opt = field.options?.find((o) => o.value === v || o.label === v);
+      const opt = field.options?.find((o: { value: string; label: string; priceModifier?: number }) => o.value === v || o.label === v);
       if (opt?.priceModifier) modifier += opt.priceModifier;
     }
   }

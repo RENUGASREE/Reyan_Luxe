@@ -10,7 +10,7 @@ async function seedAdmin() {
   await connectDatabase();
 
   const email = (env.ADMIN_SEED_EMAIL || "admin@reyanluxe.com").toLowerCase();
-  const passwordHash = await hashPassword(env.ADMIN_SEED_PASSWORD);
+  const passwordHash = await hashPassword(env.ADMIN_SEED_PASSWORD || "Admin@123");
 
   const user = await User.findOneAndUpdate(
     { email },

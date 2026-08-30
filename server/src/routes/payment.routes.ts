@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import {
   createRazorpayOrder,
   verifyRazorpayPayment,
@@ -14,7 +14,7 @@ const router = Router();
 router.use(requireAuth);
 
 // Create Razorpay order for an existing order
-router.post("/razorpay/create-order", async (req, res, next) => {
+router.post("/razorpay/create-order", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -35,7 +35,7 @@ router.post("/razorpay/create-order", async (req, res, next) => {
 });
 
 // Verify Razorpay payment
-router.post("/razorpay/verify", async (req, res, next) => {
+router.post("/razorpay/verify", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -62,7 +62,7 @@ router.post("/razorpay/verify", async (req, res, next) => {
 });
 
 // Record payment failure
-router.post("/razorpay/failure", async (req, res, next) => {
+router.post("/razorpay/failure", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -83,7 +83,7 @@ router.post("/razorpay/failure", async (req, res, next) => {
 });
 
 // Admin: Process refund
-router.post("/refund", requireAdmin, async (req, res, next) => {
+router.post("/refund", requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { orderId, amount, reason } = req.body;
     if (!orderId) {

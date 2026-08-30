@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import {
   createOrderFromCart,
   listUserOrders,
@@ -17,7 +17,7 @@ const router = Router();
 router.use(requireAuth);
 
 // Create order from cart
-router.post("/", async (req, res, next) => {
+router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -59,7 +59,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // Get user's orders
-router.get("/", async (req, res, next) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -78,7 +78,7 @@ router.get("/", async (req, res, next) => {
 router.get(
   "/:orderId",
   validateParams(z.object({ orderId: z.string() })),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -99,7 +99,7 @@ router.get(
 router.post(
   "/:orderId/cancel",
   validateParams(z.object({ orderId: z.string() })),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -121,7 +121,7 @@ router.patch(
   "/admin/:orderId/status",
   requireAdmin,
   validateParams(z.object({ orderId: z.string() })),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { orderId } = req.params;
       const { status, trackingNumber } = req.body;
