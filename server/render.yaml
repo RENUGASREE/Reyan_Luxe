@@ -3,7 +3,7 @@ services:
     name: reyan-luxe-backend
     runtime: node
     plan: free
-    buildCommand: NPM_CONFIG_PRODUCTION=false npm install && npm run build
+    buildCommand: npm install --production=false && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
