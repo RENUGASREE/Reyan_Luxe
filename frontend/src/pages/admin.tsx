@@ -37,16 +37,24 @@ export default function Admin() {
 
     const fetchDashboard = async () => {
       try {
+        console.log('Fetching admin dashboard with token:', token ? 'present' : 'missing');
+        console.log('User role:', user?.role);
+        
         const response = await fetch(`${API_BASE_URL}/api/v1/admin/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
         });
         
+        console.log('Dashboard response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error(`Failed to load admin dashboard: ${response.status}`);
+          const errorText = await response.text();
+          console.error('Dashboard error response:', errorText);
+          throw new Error(`Failed to load admin dashboard: ${response.status} - ${errorText}`);
         }
         
         const json = await response.json();
+        console.log('Dashboard data:', json);
         setStats(json.data);
       } catch (err: any) {
         console.error('Admin dashboard error:', err);

@@ -13,7 +13,7 @@ async function seedAdminUser() {
       { email },
       {
         email,
-        username: "admin",
+        username: env.ADMIN_SEED_USERNAME,
         passwordHash,
         role: "admin",
         isEmailVerified: true,
@@ -25,6 +25,7 @@ async function seedAdminUser() {
 
     console.log("Admin user ready:");
     console.log(`  Email: ${user.email}`);
+    console.log(`  Username: ${user.username}`);
     console.log(`  Role: ${user.role}`);
   } catch (error) {
     console.error("Failed to seed admin user:", error);
