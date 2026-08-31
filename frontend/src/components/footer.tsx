@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { API_BASE_URL } from "@/lib/queryClient";
 
 export default function Footer() {
   return (
@@ -29,7 +28,7 @@ export default function Footer() {
           <Link to="/wishlist" className="text-primary hover:underline">Wishlist</Link>
           <Link to="/login" className="text-primary hover:underline">Login</Link>
           <Link to="/register" className="text-primary hover:underline">Register</Link>
-          <a href={`${API_BASE_URL}/admin/`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Admin</a>
+          <Link to="/admin" className="text-primary hover:underline">Admin</Link>
         </div>
         <p className="text-background/50 text-sm" data-testid="footer-copyright">
           © 2024 Reyan Luxe. All rights reserved.
