@@ -45,6 +45,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = (newToken: string, newUser: AuthUser) => {
+    console.log('AuthContext login called');
+    console.log('New user:', newUser);
+    console.log('New user role:', newUser.role);
     persistAuth(newToken, newUser);
   };
 
